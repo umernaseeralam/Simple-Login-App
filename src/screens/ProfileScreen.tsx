@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Header from '../components/Header';
@@ -69,7 +69,7 @@ const ProfileScreen: React.FC = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header showProfileButton={false} />
       
-      <ScrollView style={styles.scrollView}>
+      <View style={styles.contentContainer}>
         <View style={[styles.profileHeader, { 
           backgroundColor: colors.card,
           borderBottomColor: colors.border 
@@ -90,7 +90,7 @@ const ProfileScreen: React.FC = () => {
           shadowColor: colors.text
         }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>About Me</Text>
-          <Text style={[styles.bioText, { color: colors.secondaryText }]}>
+          <Text className='text-emerald-700'>
             {user?.bio || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'}
           </Text>
         </View>
@@ -122,7 +122,7 @@ const ProfileScreen: React.FC = () => {
             </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
+  contentContainer: {
     flex: 1,
   },
   profileHeader: {

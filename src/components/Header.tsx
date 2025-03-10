@@ -11,6 +11,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 type RootStackParamList = {
   Home: undefined;
   Profile: undefined;
+  ProfileDetail: undefined;
   Login: undefined;
   SignUp: undefined;
   EditProfile: undefined;
@@ -66,7 +67,7 @@ const Header: React.FC<HeaderProps> = ({ showProfileButton = true }) => {
           isLoggedIn ? (
             <TouchableOpacity 
               style={styles.profileContainer}
-              onPress={() => navigation.navigate('Profile')}
+              onPress={() => navigation.navigate('ProfileDetail')}
             >
               <Text style={styles.profileText}>
                 {getInitials(user?.name || 'User')}

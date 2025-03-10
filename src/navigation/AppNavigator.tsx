@@ -75,9 +75,9 @@ const HomeTabNavigator = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName = '';
 
-          if (route.name === 'HomeTab') {
+          if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'ProfileTab') {
+          } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
 
@@ -93,12 +93,12 @@ const HomeTabNavigator = () => {
       })}
     >
       <Tab.Screen 
-        name="HomeTab" 
+        name="Home" 
         component={HomeScreen} 
         options={{ title: 'Home' }}
       />
       <Tab.Screen 
-        name="ProfileTab" 
+        name="Profile" 
         component={isLoggedIn ? ProfileScreen : LoginPromptScreen} 
         options={{ title: 'Profile' }}
       />
@@ -140,8 +140,8 @@ const MainNavigator = () => {
         cardStyle: { backgroundColor: colors.background }
       }}
     >
-      <MainStack.Screen name="HomeTab" component={HomeTabNavigator} />
-      <MainStack.Screen name="Profile" component={ProfileScreen} />
+      <MainStack.Screen name="TabNavigator" component={HomeTabNavigator} />
+      <MainStack.Screen name="ProfileDetail" component={ProfileScreen} />
       <MainStack.Screen name="EditProfile" component={EditProfileScreen} />
       <MainStack.Screen name="Settings" component={SettingsScreen} />
       <MainStack.Screen name="Chat" component={ChatScreen} />
