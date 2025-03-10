@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, useWindowDimensions } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +28,8 @@ const LoginScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<any>>();
   const { login } = useAuth();
   const { colors } = useTheme();
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,7 +88,7 @@ const LoginScreen: React.FC = () => {
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? (isLandscape ? 30 : 64) : 0}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.logoContainer}>

@@ -4,14 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
-// Define the item type
-export type Item = {
+export interface Item {
   id: number;
   title: string;
   description: string;
   color: string;
   price: string;
-};
+}
 
 interface ProductGridCardProps {
   item: Item;
@@ -27,69 +26,76 @@ interface ProductGridCardProps {
 
 const ProductGridCard: React.FC<ProductGridCardProps> = memo(({ item, width, colors }) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const cardHeight = width * 1.2; // Maintain aspect ratio
 
   return (
-    <TouchableOpacity 
-      key={item.id}
+    <TouchableOpacity
       style={[
-        styles.gridCard, 
-        { 
-          width: width,
+        styles.card,
+        {
+          width,
+          height: cardHeight,
           backgroundColor: colors.card,
-          shadowColor: colors.text,
           borderColor: colors.border,
-        }
+        },
       ]}
       onPress={() => navigation.navigate('Chat', { item })}
     >
-      <View style={[styles.cardImage, { backgroundColor: item.color }]}>
-        <Text style={styles.cardImageText}>{item.title.charAt(0)}</Text>
+      <View
+        style={[
+          styles.imageContainer,
+          {
+            backgroundColor: item.color,
+            height: cardHeight * 0.6,
+          },
+        ]}
+      >
+        <Text style={styles.imageText}>{item.title.charAt(0)}</Text>
       </View>
-      <View style={styles.cardContent}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
-        <Text style={[styles.cardDescription, { color: colors.secondaryText }]} numberOfLines={2}>
+      <View style={styles.content}>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={[styles.description, { color: colors.secondaryText }]} numberOfLines={2}>
           {item.description}
         </Text>
-        <Text style={[styles.cardPrice, { color: colors.primary }]}>{item.price}</Text>
+        <Text style={[styles.price, { color: colors.primary }]}>{item.price}</Text>
       </View>
     </TouchableOpacity>
   );
 });
 
 const styles = StyleSheet.create({
-  gridCard: {
+  card: {
+    margin: 5,
     borderRadius: 10,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
     borderWidth: 1,
+    overflow: 'hidden',
   },
-  cardImage: {
-    width: '100%',
-    height: 150,
+  imageContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardContent: {
-    padding: 10,
-  },
-  cardImageText: {
-    fontSize: 36,
-    fontWeight: 'bold',
+  imageText: {
+    fontSize: 48,
     color: '#ffffff',
+    fontWeight: 'bold',
   },
-  cardTitle: {
+  content: {
+    padding: 10,
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  title: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 4,
   },
-  cardDescription: {
+  description: {
     fontSize: 14,
-    marginBottom: 5,
+    marginBottom: 4,
   },
-  cardPrice: {
+  price: {
     fontSize: 16,
     fontWeight: 'bold',
   },

@@ -74,40 +74,31 @@ const HomeScreen: React.FC = () => {
     if (isLandscapeMode) {
       // Landscape mode
       if (width >= 1024) {
-        // Large tablet landscape
         setNumColumns(4);
         setHorizontalItemWidth(width * 0.22);
       } else if (width >= 768) {
-        // Tablet landscape
         setNumColumns(3);
         setHorizontalItemWidth(width * 0.3);
       } else {
-        // Phone landscape
         setNumColumns(2);
         setHorizontalItemWidth(width * 0.4);
       }
     } else {
       // Portrait mode
       if (width >= 768) {
-        // Tablet portrait
         setNumColumns(2);
         setHorizontalItemWidth(width * 0.4);
       } else {
-        // Phone portrait
         setNumColumns(2);
-        // Make horizontal items smaller on phones to show more items
         setHorizontalItemWidth(width * 0.6);
       }
     }
   }, [windowDimensions.width, windowDimensions.height]);
 
   const renderGridItem = useCallback(({ item }: { item: Item }) => {
-    // Calculate item width based on dynamic columns
     const itemWidth = (windowDimensions.width - (numColumns + 1) * 10) / numColumns;
-    
     return (
       <ProductGridCard 
-        key={item.id}
         item={item}
         width={itemWidth}
         colors={colors}
@@ -116,13 +107,11 @@ const HomeScreen: React.FC = () => {
   }, [windowDimensions.width, numColumns, colors]);
 
   const renderHorizontalItem = useCallback(({ item }: { item: Item }) => {
-    // Determine if we're on a small phone screen in portrait mode
     const isSmallPhonePortrait = !isLandscape && windowDimensions.width < 768;
     const itemHeight = isLandscape ? 100 : (isSmallPhonePortrait ? 90 : 120);
     
     return (
       <ProductHorizontalCard
-        key={item.id}
         item={item}
         width={horizontalItemWidth}
         height={itemHeight}
@@ -133,12 +122,11 @@ const HomeScreen: React.FC = () => {
     );
   }, [isLandscape, windowDimensions.width, horizontalItemWidth, colors]);
 
-  const renderCategorySection = useCallback(({ item: category }: { item: { id: number, title: string, data: Item[] } }) => {
-    // Determine if we're on a small phone screen in portrait mode
+  const renderCategorySection = useCallback((category: { id: number, title: string, data: Item[] }) => {
     const isSmallPhonePortrait = !isLandscape && windowDimensions.width < 768;
     
     return (
-      <View key={category.id} style={[
+      <View style={[
         styles.categorySection,
         isLandscape && { 
           width: windowDimensions.width >= 1024 ? '33%' : '50%',
@@ -160,7 +148,7 @@ const HomeScreen: React.FC = () => {
           horizontal
           data={category.data}
           renderItem={renderHorizontalItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => `horizontal-${category.id}-${item.id}`}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={[
             styles.horizontalScrollContent,
@@ -169,72 +157,73 @@ const HomeScreen: React.FC = () => {
           initialNumToRender={5}
           maxToRenderPerBatch={5}
           windowSize={5}
+          removeClippedSubviews={true}
+          getItemLayout={(data, index) => ({
+            length: horizontalItemWidth,
+            offset: horizontalItemWidth * index,
+            index,
+          })}
         />
       </View>
     );
-  }, [isLandscape, windowDimensions.width, colors, renderHorizontalItem]);
-
-  // Memoize grid data
-  const gridData = useMemo(() => {
-    const rows = [];
-    for (let i = 0; i < itemsData.length; i += numColumns) {
-      rows.push(itemsData.slice(i, i + numColumns));
-    }
-    return rows;
-  }, [numColumns]);
+  }, [isLandscape, windowDimensions.width, colors, renderHorizontalItem, horizontalItemWidth]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header />
       
-      <FlatList
-        data={[{ key: 'content' }]}
-        renderItem={() => (
-          <>
-            <View style={[styles.titleContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-              <Text className='text-2xl font-bold text-purple-700'>Featured Products</Text>
-              <Text style={[styles.pageSubtitle, { color: colors.secondaryText }]}>
-                Browse our collection of tech accessories
-              </Text>
-            </View>
-            
-            {/* Horizontal categories layout */}
-            <View style={[
-              styles.horizontalSection, 
-              isLandscape ? styles.horizontalSectionLandscape : styles.horizontalSectionPortrait
-            ]}>
-              <FlatList
-                data={categories}
-                renderItem={renderCategorySection}
-                keyExtractor={item => item.id.toString()}
-                horizontal={!isLandscape}
-                numColumns={isLandscape ? (windowDimensions.width >= 1024 ? 3 : 2) : 1}
-                initialNumToRender={3}
-                maxToRenderPerBatch={3}
-                windowSize={3}
-              />
-            </View>
-            
-            {/* Grid layout for all products - dynamic columns */}
-            <View style={styles.gridSection}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>All Products</Text>
-              <View style={styles.gridContainer}>
-                <FlatList
-                  data={itemsData}
-                  renderItem={renderGridItem}
-                  keyExtractor={item => item.id.toString()}
-                  numColumns={numColumns}
-                  initialNumToRender={8}
-                  maxToRenderPerBatch={4}
-                  windowSize={5}
-                  key={numColumns.toString()} // Force remount when columns change
-                />
-              </View>
-            </View>
-          </>
-        )}
+      <ScrollView 
         showsVerticalScrollIndicator={false}
-      />
+        contentContainerStyle={styles.scrollContainer}
+      >
+        <View style={[styles.titleContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <Text className='text-2xl font-bold text-purple-700'>Featured Products</Text>
+          <Text style={[styles.pageSubtitle, { color: colors.secondaryText }]}>
+            Browse our collection of tech accessories
+          </Text>
+        </View>
+        
+        {/* Horizontal categories layout */}
+        <View style={[
+          styles.horizontalSection, 
+          isLandscape ? styles.horizontalSectionLandscape : styles.horizontalSectionPortrait
+        ]}>
+          {isLandscape ? (
+            <View style={styles.categoriesGrid}>
+              {categories.map(category => renderCategorySection(category))}
+            </View>
+          ) : (
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoriesContainer}
+            >
+              {categories.map(category => renderCategorySection(category))}
+            </ScrollView>
+          )}
+        </View>
+        
+        {/* Grid layout for all products */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>All Products</Text>
+        <View style={styles.gridContainer}>
+          <FlatList
+            data={itemsData}
+            renderItem={renderGridItem}
+            keyExtractor={item => `product-${item.id}`}
+            numColumns={numColumns}
+            key={`grid-${numColumns}`}
+            scrollEnabled={false}
+            initialNumToRender={8}
+            maxToRenderPerBatch={4}
+            windowSize={5}
+            getItemLayout={(data, index) => ({
+              length: windowDimensions.width / numColumns,
+              offset: (windowDimensions.width / numColumns) * Math.floor(index / numColumns),
+              index,
+            })}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -244,7 +233,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    flex: 1,
+    flexGrow: 1,
   },
   titleContainer: {
     padding: 15,
@@ -262,13 +251,18 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   horizontalSectionLandscape: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 10,
+    flexDirection: 'column',
   },
   horizontalSectionPortrait: {
     paddingHorizontal: 0,
+  },
+  categoriesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 10,
+  },
+  categoriesContainer: {
+    paddingHorizontal: 10,
   },
   gridSection: {
     padding: 1,
@@ -281,10 +275,6 @@ const styles = StyleSheet.create({
   },
   gridContainer: {
     padding: 5,
-  },
-  gridRow: {
-    flexDirection: 'row',
-    marginBottom: 10,
   },
   categorySection: {
     marginVertical: 15,
