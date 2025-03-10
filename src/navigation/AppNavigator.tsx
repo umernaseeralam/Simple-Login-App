@@ -14,7 +14,9 @@ import ProfileScreen from '../screens/ProfileScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 // Define the param list for the stack navigator
 export type RootStackParamList = {
@@ -26,6 +28,7 @@ export type RootStackParamList = {
   EditProfile: undefined;
   Auth: undefined;
   ProfileTab: undefined;
+  Settings: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -35,10 +38,13 @@ const Tab = createBottomTabNavigator();
 
 // Auth Navigator - contains Login and SignUp screens
 const AuthNavigator = () => {
+  const { colors } = useTheme();
+  
   return (
     <AuthStack.Navigator
       screenOptions={{
         headerShown: false,
+        cardStyle: { backgroundColor: colors.background }
       }}
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
@@ -50,6 +56,7 @@ const AuthNavigator = () => {
 // Home Tab Navigator
 const HomeTabNavigator = () => {
   const { isLoggedIn } = useAuth();
+  const { colors } = useTheme();
   
   return (
     <Tab.Navigator
@@ -65,9 +72,13 @@ const HomeTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#3498db',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.secondaryText,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
+        },
       })}
     >
       <Tab.Screen 
@@ -87,16 +98,17 @@ const HomeTabNavigator = () => {
 // Login Prompt Screen - shown when user is not logged in and tries to access profile
 const LoginPromptScreen = () => {
   const navigation = useNavigation<StackNavigationProp<any>>();
+  const { colors } = useTheme();
   
   return (
-    <View style={styles.container}>
-      <View style={styles.iconContainer}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.iconContainer, { backgroundColor: colors.primary }]}>
         <Ionicons name="person" size={50} color="#ffffff" />
       </View>
-      <Text style={styles.title}>Please Sign In</Text>
-      <Text style={styles.message}>You need to be signed in to view your profile</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Please Sign In</Text>
+      <Text style={[styles.message, { color: colors.secondaryText }]}>You need to be signed in to view your profile</Text>
       <TouchableOpacity 
-        style={styles.button}
+        style={[styles.button, { backgroundColor: colors.primary }]}
         onPress={() => navigation.navigate('Auth' as never)}
       >
         <Ionicons name="log-in-outline" size={20} color="#ffffff" style={styles.buttonIcon} />
@@ -108,27 +120,32 @@ const LoginPromptScreen = () => {
 
 // Main Navigator
 const MainNavigator = () => {
+  const { colors } = useTheme();
+  
   return (
     <MainStack.Navigator
       screenOptions={{
         headerShown: false,
+        cardStyle: { backgroundColor: colors.background }
       }}
     >
       <MainStack.Screen name="HomeTab" component={HomeTabNavigator} />
       <MainStack.Screen name="Profile" component={ProfileScreen} />
       <MainStack.Screen name="EditProfile" component={EditProfileScreen} />
+      <MainStack.Screen name="Settings" component={SettingsScreen} />
     </MainStack.Navigator>
   );
 };
 
 const AppNavigator: React.FC = () => {
   const { isLoading, isLoggedIn } = useAuth();
+  const { colors } = useTheme();
 
   // Show loading screen while checking login status
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498db" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -160,19 +177,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f8f8f8',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#3498db',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -181,16 +195,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
   },
   message: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 30,
-    color: '#666',
   },
   button: {
-    backgroundColor: '#3498db',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,

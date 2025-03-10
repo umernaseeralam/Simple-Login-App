@@ -4,6 +4,7 @@ import { useNavigation, CommonActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type RootStackParamList = {
@@ -19,6 +20,7 @@ const ProfileScreen: React.FC = () => {
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigation = useNavigation<StackNavigationProp<any>>();
+  const { colors } = useTheme();
 
   // Get initials from user name
   const getInitials = (name: string) => {
@@ -64,32 +66,38 @@ const ProfileScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header showProfileButton={false} />
       
       <ScrollView style={styles.scrollView}>
-        <View style={styles.profileHeader}>
-          <View style={styles.profileImageContainer}>
+        <View style={[styles.profileHeader, { 
+          backgroundColor: colors.card,
+          borderBottomColor: colors.border 
+        }]}>
+          <View style={[styles.profileImageContainer, { borderColor: colors.primary }]}>
             <Text style={styles.profileInitials}>
               {getInitials(user?.name || 'User')}
             </Text>
           </View>
           
-          <Text style={styles.userName}>{user?.name || 'User'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
-          <Text style={styles.joinDate}>Member since: January 2023</Text>
+          <Text style={[styles.userName, { color: colors.text }]}>{user?.name || 'User'}</Text>
+          <Text style={[styles.userEmail, { color: colors.secondaryText }]}>{user?.email || 'user@example.com'}</Text>
+          <Text style={[styles.joinDate, { color: colors.secondaryText }]}>Member since: January 2023</Text>
         </View>
         
-        <View style={styles.bioSection}>
-          <Text style={styles.sectionTitle}>About Me</Text>
-          <Text style={styles.bioText}>
+        <View style={[styles.bioSection, { 
+          backgroundColor: colors.card,
+          shadowColor: colors.text
+        }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>About Me</Text>
+          <Text style={[styles.bioText, { color: colors.secondaryText }]}>
             {user?.bio || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'}
           </Text>
         </View>
         
         <View style={styles.actionsSection}>
           <TouchableOpacity 
-            style={styles.actionButton}
+            style={[styles.actionButton, { backgroundColor: colors.primary }]}
             onPress={() => navigation.navigate('EditProfile' as never)}
           >
             <Ionicons name="create-outline" size={20} color="#ffffff" style={styles.actionIcon} />
@@ -97,7 +105,14 @@ const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[styles.actionButton, styles.logoutButton]}
+            style={[
+              styles.actionButton, 
+              styles.logoutButton, 
+              { 
+                backgroundColor: colors.card,
+                borderColor: '#e74c3c' 
+              }
+            ]}
             onPress={handleLogout}
             disabled={isLoggingOut}
           >
@@ -115,7 +130,6 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
   },
   scrollView: {
     flex: 1,
@@ -123,9 +137,7 @@ const styles = StyleSheet.create({
   profileHeader: {
     alignItems: 'center',
     paddingVertical: 30,
-    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   profileImageContainer: {
     width: 120,
@@ -134,7 +146,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 15,
     borderWidth: 3,
-    borderColor: '#3498db',
     backgroundColor: '#3498db',
     justifyContent: 'center',
     alignItems: 'center',
@@ -151,20 +162,16 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 16,
-    color: '#666',
     marginBottom: 5,
   },
   joinDate: {
     fontSize: 14,
-    color: '#888',
   },
   bioSection: {
     padding: 20,
-    backgroundColor: '#ffffff',
     marginTop: 15,
     borderRadius: 10,
     marginHorizontal: 15,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -174,12 +181,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
   },
   bioText: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#555',
   },
   actionsSection: {
     padding: 20,
@@ -187,7 +192,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   actionButton: {
-    backgroundColor: '#3498db',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -204,9 +208,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   logoutButton: {
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e74c3c',
   },
   logoutButtonText: {
     color: '#e74c3c',

@@ -1,6 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView,
+  useWindowDimensions
+} from 'react-native';
 import Header from '../components/Header';
+import { useTheme } from '../context/ThemeContext';
 
 // Define the item type
 type Item = {
@@ -45,38 +53,189 @@ const itemsData: Item[] = [
   { id: 30, title: 'Webcam Light', description: 'Ring light for video calls and streaming', color: '#8e44ad', price: '$28.99' },
 ];
 
-const { width } = Dimensions.get('window');
-const numColumns = 2;
-const itemWidth = (width - 40) / numColumns;
+// Create categories for horizontal layout
+const categories = [
+  { id: 1, title: 'Popular Items', data: itemsData.slice(0, 10) },
+  { id: 2, title: 'New Arrivals', data: itemsData.slice(10, 20) },
+  { id: 3, title: 'On Sale', data: itemsData.slice(20, 30) }
+];
 
 const HomeScreen: React.FC = () => {
-  const renderItem = ({ item }: { item: Item }) => (
-    <TouchableOpacity style={styles.card}>
-      <View style={[styles.cardImage, { backgroundColor: item.color }]}>
+  const { colors } = useTheme();
+  const windowDimensions = useWindowDimensions();
+  const [horizontalItemWidth, setHorizontalItemWidth] = useState(300);
+  const [numColumns, setNumColumns] = useState(2);
+  const [isLandscape, setIsLandscape] = useState(false);
+  
+  // Update layout based on screen dimensions
+  useEffect(() => {
+    const width = windowDimensions.width;
+    const height = windowDimensions.height;
+    const isLandscapeMode = width > height;
+    setIsLandscape(isLandscapeMode);
+    
+    if (isLandscapeMode) {
+      // Landscape mode
+      if (width >= 1024) {
+        // Large tablet landscape
+        setNumColumns(4);
+        setHorizontalItemWidth(width * 0.22);
+      } else if (width >= 768) {
+        // Tablet landscape
+        setNumColumns(3);
+        setHorizontalItemWidth(width * 0.3);
+      } else {
+        // Phone landscape
+        setNumColumns(2);
+        setHorizontalItemWidth(width * 0.4);
+      }
+    } else {
+      // Portrait mode
+      if (width >= 768) {
+        // Tablet portrait
+        setNumColumns(2);
+        setHorizontalItemWidth(width * 0.4);
+      } else {
+        // Phone portrait
+        setNumColumns(2);
+        setHorizontalItemWidth(width * 0.7);
+      }
+    }
+  }, [windowDimensions.width, windowDimensions.height]);
+
+  const renderGridItem = (item: Item) => {
+    // Calculate item width based on dynamic columns
+    const itemWidth = (windowDimensions.width - (numColumns + 1) * 10) / numColumns;
+    
+    return (
+      <TouchableOpacity 
+        key={item.id}
+        style={[
+          styles.gridCard, 
+          { 
+            width: itemWidth,
+            backgroundColor: colors.card,
+            shadowColor: colors.text,
+            borderColor: colors.border,
+          }
+        ]}
+      >
+        <View style={[styles.cardImage, { backgroundColor: item.color }]}>
+          <Text style={styles.cardImageText}>{item.title.charAt(0)}</Text>
+        </View>
+        <View style={styles.cardContent}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
+          <Text style={[styles.cardDescription, { color: colors.secondaryText }]} numberOfLines={2}>
+            {item.description}
+          </Text>
+          <Text style={[styles.cardPrice, { color: colors.primary }]}>{item.price}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderHorizontalItem = (item: Item) => (
+    <TouchableOpacity 
+      key={item.id}
+      style={[
+        styles.horizontalCard, 
+        { 
+          width: horizontalItemWidth,
+          height: isLandscape ? 100 : 120,
+          backgroundColor: colors.card,
+          shadowColor: colors.text,
+          borderColor: colors.border,
+        }
+      ]}
+    >
+      <View style={[
+        styles.horizontalCardImage, 
+        { 
+          backgroundColor: item.color,
+          width: isLandscape ? 100 : 120 
+        }
+      ]}>
         <Text style={styles.cardImageText}>{item.title.charAt(0)}</Text>
       </View>
-      <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text style={styles.cardDescription} numberOfLines={2}>{item.description}</Text>
-        <Text style={styles.cardPrice}>{item.price}</Text>
+      <View style={styles.horizontalCardContent}>
+        <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
+        <Text style={[styles.cardDescription, { color: colors.secondaryText }]} numberOfLines={isLandscape ? 1 : 2}>
+          {item.description}
+        </Text>
+        <Text style={[styles.cardPrice, { color: colors.primary }]}>{item.price}</Text>
       </View>
     </TouchableOpacity>
   );
 
+  const renderCategorySection = (category: {id: number, title: string, data: Item[]}) => (
+    <View key={category.id} style={[
+      styles.categorySection,
+      isLandscape && { 
+        width: windowDimensions.width >= 1024 ? '33%' : '50%',
+        paddingRight: 5
+      }
+    ]}>
+      <Text style={[styles.categoryTitle, { color: colors.text }]}>{category.title}</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.horizontalScrollContent}
+      >
+        {category.data.map(item => renderHorizontalItem(item))}
+      </ScrollView>
+    </View>
+  );
+
+  // Split items into rows based on dynamic numColumns
+  const createGridRows = () => {
+    const rows = [];
+    for (let i = 0; i < itemsData.length; i += numColumns) {
+      rows.push(itemsData.slice(i, i + numColumns));
+    }
+    return rows;
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header />
-      <View style={styles.titleContainer}>
-        <Text style={styles.pageTitle}>Featured Products</Text>
-        <Text style={styles.pageSubtitle}>Browse our collection of tech accessories</Text>
-      </View>
-      <FlatList
-        data={itemsData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={numColumns}
-        contentContainerStyle={styles.listContainer}
-      />
+      
+      <ScrollView 
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.titleContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <Text style={[styles.pageTitle, { color: colors.text }]}>Featured Products</Text>
+          <Text style={[styles.pageSubtitle, { color: colors.secondaryText }]}>
+            Browse our collection of tech accessories
+          </Text>
+        </View>
+        
+        {/* Horizontal categories layout */}
+        <View style={[styles.horizontalSection, isLandscape && styles.horizontalSectionLandscape]}>
+          {categories.map(category => renderCategorySection(category))}
+        </View>
+        
+        {/* Grid layout for all products - dynamic columns */}
+        <View style={styles.gridSection}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>All Products</Text>
+          <View style={styles.gridContainer}>
+            {createGridRows().map((row, index) => (
+              <View key={`row-${index}`} style={[
+                styles.gridRow,
+                { justifyContent: row.length < numColumns ? 'flex-start' : 'space-between' }
+              ]}>
+                {row.map((item, itemIndex) => (
+                  <View key={item.id} style={[
+                    row.length < numColumns && itemIndex < row.length - 1 && { marginRight: 10 }
+                  ]}>
+                    {renderGridItem(item)}
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -84,52 +243,92 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+  },
+  scrollContainer: {
+    flex: 1,
   },
   titleContainer: {
     padding: 15,
-    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   pageTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
   },
   pageSubtitle: {
     fontSize: 14,
-    color: '#666',
     marginTop: 5,
   },
-  listContainer: {
-    padding: 10,
+  horizontalSection: {
+    paddingBottom: 10,
   },
-  card: {
-    width: itemWidth,
-    backgroundColor: '#ffffff',
+  horizontalSectionLandscape: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 10,
+  },
+  gridSection: {
+    padding: 1,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 10,
+    paddingHorizontal: 5,
+  },
+  gridContainer: {
+    padding: 5,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  horizontalCard: {
+    flexDirection: 'row',
     borderRadius: 10,
-    margin: 5,
     overflow: 'hidden',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    height: 120,
+    borderWidth: 1,
+    marginRight: 15,
+  },
+  gridCard: {
+    borderRadius: 10,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+  },
+  horizontalCardImage: {
+    width: 120,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardImage: {
     width: '100%',
-    height: 120,
+    height: 150,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  horizontalCardContent: {
+    padding: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  cardContent: {
+    padding: 10,
   },
   cardImageText: {
     fontSize: 36,
     fontWeight: 'bold',
     color: '#ffffff',
-  },
-  cardContent: {
-    padding: 10,
   },
   cardTitle: {
     fontSize: 16,
@@ -138,13 +337,23 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     fontSize: 14,
-    color: '#666',
     marginBottom: 5,
   },
   cardPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#3498db',
+  },
+  categorySection: {
+    marginVertical: 15,
+    paddingHorizontal: 15,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  horizontalScrollContent: {
+    paddingRight: 15,
   },
 });
 

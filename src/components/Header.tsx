@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Define the navigation param list type
@@ -14,6 +15,7 @@ type RootStackParamList = {
   SignUp: undefined;
   EditProfile: undefined;
   Auth: undefined;
+  Settings: undefined;
 };
 
 type HeaderProps = {
@@ -24,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ showProfileButton = true }) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const { isLoggedIn, user } = useAuth();
+  const { colors, isDarkMode } = useTheme();
 
   // Get initials from user name for the profile button
   const getInitials = (name: string) => {
@@ -36,32 +39,50 @@ const Header: React.FC<HeaderProps> = ({ showProfileButton = true }) => {
   return (
     <View style={[
       styles.header, 
-      { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : insets.top }
+      { 
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : insets.top,
+        backgroundColor: colors.card,
+        borderBottomColor: colors.border
+      }
     ]}>
       <View style={styles.logoContainer}>
-        <Text style={styles.logoText}>MyApp</Text>
+        <Text style={[styles.logoText, { color: colors.primary }]}>MyApp</Text>
       </View>
       
-      {showProfileButton && (
-        isLoggedIn ? (
-          <TouchableOpacity 
-            style={styles.profileContainer}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            <Text style={styles.profileText}>
-              {getInitials(user?.name || 'User')}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity 
-            style={styles.loginButton}
-            onPress={() => navigation.navigate('Auth')}
-          >
-            <Ionicons name="log-in-outline" size={16} color="#ffffff" style={styles.loginIcon} />
-            <Text style={styles.loginButtonText}>Sign In</Text>
-          </TouchableOpacity>
-        )
-      )}
+      <View style={styles.rightContainer}>
+        {/* Theme toggle button */}
+        <TouchableOpacity 
+          style={[styles.iconButton, { backgroundColor: colors.primary + '20' }]}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Ionicons 
+            name={isDarkMode ? "sunny-outline" : "moon-outline"} 
+            size={20} 
+            color={colors.primary} 
+          />
+        </TouchableOpacity>
+        
+        {showProfileButton && (
+          isLoggedIn ? (
+            <TouchableOpacity 
+              style={styles.profileContainer}
+              onPress={() => navigation.navigate('Profile')}
+            >
+              <Text style={styles.profileText}>
+                {getInitials(user?.name || 'User')}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              style={styles.loginButton}
+              onPress={() => navigation.navigate('Auth')}
+            >
+              <Ionicons name="log-in-outline" size={16} color="#ffffff" style={styles.loginIcon} />
+              <Text style={styles.loginButtonText}>Sign In</Text>
+            </TouchableOpacity>
+          )
+        )}
+      </View>
     </View>
   );
 };
@@ -73,9 +94,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     paddingBottom: 10,
-    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   logoContainer: {
     flexDirection: 'row',
@@ -84,7 +103,18 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#3498db',
+  },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButton: {
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
   },
   profileContainer: {
     height: 40,

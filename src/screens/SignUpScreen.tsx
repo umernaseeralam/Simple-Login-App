@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Import the RootStackParamList from the AppNavigator
@@ -31,6 +32,7 @@ const SignUpScreen: React.FC = () => {
   
   const navigation = useNavigation<StackNavigationProp<any>>();
   const { signup } = useAuth();
+  const { colors } = useTheme();
 
   const validateName = (name: string) => {
     if (!name) {
@@ -110,25 +112,26 @@ const SignUpScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>MyApp</Text>
+          <Text style={[styles.logoText, { color: colors.primary }]}>MyApp</Text>
         </View>
 
-        <View style={styles.formContainer}>
-          <Text style={styles.title}>Create Account</Text>
+        <View style={[styles.formContainer, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
           
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Name</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Name</Text>
+            <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
+              <Ionicons name="person-outline" size={20} color={colors.secondaryText} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter your name"
+                placeholderTextColor={colors.secondaryText}
                 value={name}
                 onChangeText={(text) => {
                   setName(text);
@@ -141,12 +144,13 @@ const SignUpScreen: React.FC = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="mail-outline" size={20} color="#999" style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Email</Text>
+            <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
+              <Ionicons name="mail-outline" size={20} color={colors.secondaryText} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter your email"
+                placeholderTextColor={colors.secondaryText}
                 value={email}
                 onChangeText={(text) => {
                   setEmail(text);
@@ -161,12 +165,13 @@ const SignUpScreen: React.FC = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Password</Text>
+            <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
+              <Ionicons name="lock-closed-outline" size={20} color={colors.secondaryText} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter your password"
+                placeholderTextColor={colors.secondaryText}
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
@@ -180,12 +185,13 @@ const SignUpScreen: React.FC = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Confirm Password</Text>
+            <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
+              <Ionicons name="lock-closed-outline" size={20} color={colors.secondaryText} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Confirm your password"
+                placeholderTextColor={colors.secondaryText}
                 value={confirmPassword}
                 onChangeText={(text) => {
                   setConfirmPassword(text);
@@ -207,9 +213,9 @@ const SignUpScreen: React.FC = () => {
           </TouchableOpacity>
 
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Already have an account? </Text>
+            <Text style={[styles.loginText, { color: colors.secondaryText }]}>Already have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login' as never)} disabled={isLoading}>
-              <Text style={styles.loginLink}>Login</Text>
+              <Text style={[styles.loginLink, { color: colors.primary }]}>Login</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -221,7 +227,6 @@ const SignUpScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -235,7 +240,6 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#3498db',
   },
   formContainer: {
     backgroundColor: '#ffffff',
@@ -270,7 +274,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
-    color: '#333',
   },
   input: {
     flex: 1,
@@ -304,11 +307,9 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 14,
-    color: '#666',
   },
   loginLink: {
     fontSize: 14,
-    color: '#3498db',
     fontWeight: 'bold',
   },
 });

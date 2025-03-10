@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -23,6 +24,7 @@ type RootStackParamList = {
 const EditProfileScreen: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
   
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -58,11 +60,11 @@ const EditProfileScreen: React.FC = () => {
     const isNameValid = validateName(name);
     const isEmailValid = validateEmail(email);
 
-    if (isNameValid && isEmailValid) {
+    if (isNameValid && isEmailValid && user) {
       setIsSaving(true);
       try {
         await updateUserProfile({
-          ...user,
+          id: user.id,
           name,
           email,
           bio
@@ -79,7 +81,7 @@ const EditProfileScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header showProfileButton={false} />
       
       <KeyboardAvoidingView
@@ -88,13 +90,18 @@ const EditProfileScreen: React.FC = () => {
       >
         <ScrollView style={styles.scrollView}>
           <View style={styles.formContainer}>
-            <Text style={styles.title}>Edit Profile</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Edit Profile</Text>
             
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Name</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Name</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { 
+                  borderColor: colors.border, 
+                  backgroundColor: colors.card,
+                  color: colors.text
+                }]}
                 placeholder="Enter your name"
+                placeholderTextColor={colors.secondaryText}
                 value={name}
                 onChangeText={(text) => {
                   setName(text);
@@ -106,10 +113,15 @@ const EditProfileScreen: React.FC = () => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Email</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { 
+                  borderColor: colors.border, 
+                  backgroundColor: colors.card,
+                  color: colors.text
+                }]}
                 placeholder="Enter your email"
+                placeholderTextColor={colors.secondaryText}
                 value={email}
                 onChangeText={(text) => {
                   setEmail(text);
@@ -123,10 +135,15 @@ const EditProfileScreen: React.FC = () => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Bio</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Bio</Text>
               <TextInput
-                style={[styles.input, styles.bioInput]}
+                style={[styles.input, styles.bioInput, { 
+                  borderColor: colors.border, 
+                  backgroundColor: colors.card,
+                  color: colors.text
+                }]}
                 placeholder="Tell us about yourself"
+                placeholderTextColor={colors.secondaryText}
                 value={bio}
                 onChangeText={setBio}
                 multiline
@@ -137,11 +154,18 @@ const EditProfileScreen: React.FC = () => {
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity 
-                style={[styles.button, styles.cancelButton]} 
+                style={[
+                  styles.button, 
+                  styles.cancelButton, 
+                  { 
+                    backgroundColor: colors.card,
+                    borderColor: colors.border 
+                  }
+                ]} 
                 onPress={() => navigation.goBack()}
                 disabled={isSaving}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
@@ -162,7 +186,6 @@ const EditProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -177,7 +200,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#333',
   },
   inputContainer: {
     marginBottom: 15,
@@ -185,7 +207,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
-    color: '#333',
   },
   input: {
     borderWidth: 1,
