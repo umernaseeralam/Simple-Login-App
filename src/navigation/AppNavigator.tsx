@@ -15,8 +15,18 @@ import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ChatScreen from '../screens/ChatScreen';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+
+// Define the item type for chat
+type Item = {
+  id: number;
+  title: string;
+  description: string;
+  color: string;
+  price: string;
+};
 
 // Define the param list for the stack navigator
 export type RootStackParamList = {
@@ -29,6 +39,7 @@ export type RootStackParamList = {
   Auth: undefined;
   ProfileTab: undefined;
   Settings: undefined;
+  Chat: { item: Item };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -133,6 +144,7 @@ const MainNavigator = () => {
       <MainStack.Screen name="Profile" component={ProfileScreen} />
       <MainStack.Screen name="EditProfile" component={EditProfileScreen} />
       <MainStack.Screen name="Settings" component={SettingsScreen} />
+      <MainStack.Screen name="Chat" component={ChatScreen} />
     </MainStack.Navigator>
   );
 };

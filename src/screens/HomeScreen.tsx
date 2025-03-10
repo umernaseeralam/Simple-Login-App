@@ -7,18 +7,14 @@ import {
   ScrollView,
   useWindowDimensions
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import Header from '../components/Header';
 import { useTheme } from '../context/ThemeContext';
-
-// Define the item type
-type Item = {
-  id: number;
-  title: string;
-  description: string;
-  color: string;
-  price: string;
-};
-
+import { RootStackParamList } from '../navigation/AppNavigator';
+import ProductGridCard, { Item } from '../components/ProductGridCard';
+import ProductHorizontalCard from '../components/ProductHorizontalCard';
+import '../../global.css';
 // Local array database with 30 items with realistic product names
 const itemsData: Item[] = [
   { id: 1, title: 'Wireless Earbuds', description: 'Bluetooth 5.0 with noise cancellation', color: '#3498db', price: '$49.99' },
@@ -66,6 +62,7 @@ const HomeScreen: React.FC = () => {
   const [horizontalItemWidth, setHorizontalItemWidth] = useState(300);
   const [numColumns, setNumColumns] = useState(2);
   const [isLandscape, setIsLandscape] = useState(false);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   
   // Update layout based on screen dimensions
   useEffect(() => {
@@ -98,7 +95,8 @@ const HomeScreen: React.FC = () => {
       } else {
         // Phone portrait
         setNumColumns(2);
-        setHorizontalItemWidth(width * 0.7);
+        // Make horizontal items smaller on phones to show more items
+        setHorizontalItemWidth(width * 0.6);
       }
     }
   }, [windowDimensions.width, windowDimensions.height]);
@@ -108,83 +106,69 @@ const HomeScreen: React.FC = () => {
     const itemWidth = (windowDimensions.width - (numColumns + 1) * 10) / numColumns;
     
     return (
-      <TouchableOpacity 
+      <ProductGridCard 
         key={item.id}
-        style={[
-          styles.gridCard, 
-          { 
-            width: itemWidth,
-            backgroundColor: colors.card,
-            shadowColor: colors.text,
-            borderColor: colors.border,
-          }
-        ]}
-      >
-        <View style={[styles.cardImage, { backgroundColor: item.color }]}>
-          <Text style={styles.cardImageText}>{item.title.charAt(0)}</Text>
-        </View>
-        <View style={styles.cardContent}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
-          <Text style={[styles.cardDescription, { color: colors.secondaryText }]} numberOfLines={2}>
-            {item.description}
-          </Text>
-          <Text style={[styles.cardPrice, { color: colors.primary }]}>{item.price}</Text>
-        </View>
-      </TouchableOpacity>
+        item={item}
+        width={itemWidth}
+        colors={colors}
+      />
     );
   };
 
-  const renderHorizontalItem = (item: Item) => (
-    <TouchableOpacity 
-      key={item.id}
-      style={[
-        styles.horizontalCard, 
-        { 
-          width: horizontalItemWidth,
-          height: isLandscape ? 100 : 120,
-          backgroundColor: colors.card,
-          shadowColor: colors.text,
-          borderColor: colors.border,
-        }
-      ]}
-    >
-      <View style={[
-        styles.horizontalCardImage, 
-        { 
-          backgroundColor: item.color,
-          width: isLandscape ? 100 : 120 
+  const renderHorizontalItem = (item: Item) => {
+    // Determine if we're on a small phone screen in portrait mode
+    const isSmallPhonePortrait = !isLandscape && windowDimensions.width < 768;
+    const itemHeight = isLandscape ? 100 : (isSmallPhonePortrait ? 90 : 120);
+    
+    return (
+      <ProductHorizontalCard
+        key={item.id}
+        item={item}
+        width={horizontalItemWidth}
+        height={itemHeight}
+        isLandscape={isLandscape}
+        isSmallPhonePortrait={isSmallPhonePortrait}
+        colors={colors}
+      />
+    );
+  };
+
+  const renderCategorySection = (category: {id: number, title: string, data: Item[]}) => {
+    // Determine if we're on a small phone screen in portrait mode
+    const isSmallPhonePortrait = !isLandscape && windowDimensions.width < 768;
+    
+    return (
+      <View key={category.id} style={[
+        styles.categorySection,
+        isLandscape && { 
+          width: windowDimensions.width >= 1024 ? '33%' : '50%',
+          paddingRight: 5
+        },
+        isSmallPhonePortrait && {
+          marginVertical: 10,
+          paddingHorizontal: 10
         }
       ]}>
-        <Text style={styles.cardImageText}>{item.title.charAt(0)}</Text>
-      </View>
-      <View style={styles.horizontalCardContent}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
-        <Text style={[styles.cardDescription, { color: colors.secondaryText }]} numberOfLines={isLandscape ? 1 : 2}>
-          {item.description}
+        <Text style={[
+          styles.categoryTitle, 
+          { color: colors.text },
+          isSmallPhonePortrait && { fontSize: 16, marginBottom: 8 }
+        ]}>
+          {category.title}
         </Text>
-        <Text style={[styles.cardPrice, { color: colors.primary }]}>{item.price}</Text>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.horizontalScrollContent,
+            isSmallPhonePortrait && { paddingRight: 10 }
+          ]}
+        >
+          {category.data.map(item => renderHorizontalItem(item))}
+        </ScrollView>
       </View>
-    </TouchableOpacity>
-  );
-
-  const renderCategorySection = (category: {id: number, title: string, data: Item[]}) => (
-    <View key={category.id} style={[
-      styles.categorySection,
-      isLandscape && { 
-        width: windowDimensions.width >= 1024 ? '33%' : '50%',
-        paddingRight: 5
-      }
-    ]}>
-      <Text style={[styles.categoryTitle, { color: colors.text }]}>{category.title}</Text>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.horizontalScrollContent}
-      >
-        {category.data.map(item => renderHorizontalItem(item))}
-      </ScrollView>
-    </View>
-  );
+    );
+  };
 
   // Split items into rows based on dynamic numColumns
   const createGridRows = () => {
@@ -204,14 +188,17 @@ const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.titleContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-          <Text style={[styles.pageTitle, { color: colors.text }]}>Featured Products</Text>
+          <Text className='text-2xl font-bold text-purple-700'>Featured Products</Text>
           <Text style={[styles.pageSubtitle, { color: colors.secondaryText }]}>
             Browse our collection of tech accessories
           </Text>
         </View>
         
         {/* Horizontal categories layout */}
-        <View style={[styles.horizontalSection, isLandscape && styles.horizontalSectionLandscape]}>
+        <View style={[
+          styles.horizontalSection, 
+          isLandscape ? styles.horizontalSectionLandscape : styles.horizontalSectionPortrait
+        ]}>
           {categories.map(category => renderCategorySection(category))}
         </View>
         
@@ -268,6 +255,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingHorizontal: 10,
   },
+  horizontalSectionPortrait: {
+    paddingHorizontal: 0,
+  },
   gridSection: {
     padding: 1,
   },
@@ -283,65 +273,6 @@ const styles = StyleSheet.create({
   gridRow: {
     flexDirection: 'row',
     marginBottom: 10,
-  },
-  horizontalCard: {
-    flexDirection: 'row',
-    borderRadius: 10,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    height: 120,
-    borderWidth: 1,
-    marginRight: 15,
-  },
-  gridCard: {
-    borderRadius: 10,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
-  },
-  horizontalCardImage: {
-    width: 120,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardImage: {
-    width: '100%',
-    height: 150,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  horizontalCardContent: {
-    padding: 10,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  cardContent: {
-    padding: 10,
-  },
-  cardImageText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  cardDescription: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  cardPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   categorySection: {
     marginVertical: 15,
