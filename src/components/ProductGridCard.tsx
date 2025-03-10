@@ -56,7 +56,7 @@ const ProductGridCard: React.FC<ProductGridCardProps> = memo(({ item, width, col
         <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
           {item.title}
         </Text>
-        <Text style={[styles.description, { color: colors.secondaryText }]} numberOfLines={2}>
+        <Text style={[styles.description, { color: colors.secondaryText }]} numberOfLines={1}>
           {item.description}
         </Text>
         <Text style={[styles.price, { color: colors.primary }]}>{item.price}</Text>

@@ -168,62 +168,86 @@ const HomeScreen: React.FC = () => {
     );
   }, [isLandscape, windowDimensions.width, colors, renderHorizontalItem, horizontalItemWidth]);
 
+  // Create sections for the main FlatList
+  type Section = {
+    id: string;
+    type: 'header' | 'categories' | 'allProducts';
+  };
+
+  const sections: Section[] = [
+    { id: 'header', type: 'header' },
+    { id: 'categories', type: 'categories' },
+    { id: 'allProducts', type: 'allProducts' }
+  ];
+
+  const renderMainListItem = useCallback(({ item }: { item: Section }) => {
+    switch (item.type) {
+      case 'header':
+        return (
+          <View style={[styles.titleContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+            <Text className='text-2xl font-bold text-purple-700'>Featured Products</Text>
+            <Text style={[styles.pageSubtitle, { color: colors.secondaryText }]}>
+              Browse our collection of tech accessories
+            </Text>
+          </View>
+        );
+      case 'categories':
+        return (
+          <View style={[
+            styles.horizontalSection, 
+            isLandscape ? styles.horizontalSectionLandscape : styles.horizontalSectionPortrait
+          ]}>
+            {isLandscape ? (
+              <View style={styles.categoriesGrid}>
+                {categories.map(category => renderCategorySection(category))}
+              </View>
+            ) : (
+              <View style={styles.categoriesContainer}>
+                {categories.map(category => renderCategorySection(category))}
+              </View>
+            )}
+          </View>
+        );
+      case 'allProducts':
+        return (
+          <>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>All Products</Text>
+            <View style={styles.gridContainer}>
+              <FlatList
+                data={itemsData}
+                renderItem={renderGridItem}
+                keyExtractor={item => `product-${item.id}`}
+                numColumns={numColumns}
+                key={`grid-${numColumns}`}
+                scrollEnabled={false}
+                initialNumToRender={8}
+                maxToRenderPerBatch={4}
+                windowSize={5}
+                getItemLayout={(data, index) => ({
+                  length: windowDimensions.width / numColumns,
+                  offset: (windowDimensions.width / numColumns) * Math.floor(index / numColumns),
+                  index,
+                })}
+              />
+            </View>
+          </>
+        );
+      default:
+        return null;
+    }
+  }, [colors, isLandscape, renderCategorySection, renderGridItem, numColumns, windowDimensions.width]);
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header />
       
-      <ScrollView 
+      <FlatList
+        data={sections}
+        renderItem={renderMainListItem}
+        keyExtractor={item => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
-      >
-        <View style={[styles.titleContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-          <Text className='text-2xl font-bold text-purple-700'>Featured Products</Text>
-          <Text style={[styles.pageSubtitle, { color: colors.secondaryText }]}>
-            Browse our collection of tech accessories
-          </Text>
-        </View>
-        
-        {/* Horizontal categories layout */}
-        <View style={[
-          styles.horizontalSection, 
-          isLandscape ? styles.horizontalSectionLandscape : styles.horizontalSectionPortrait
-        ]}>
-          {isLandscape ? (
-            <View style={styles.categoriesGrid}>
-              {categories.map(category => renderCategorySection(category))}
-            </View>
-          ) : (
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoriesContainer}
-            >
-              {categories.map(category => renderCategorySection(category))}
-            </ScrollView>
-          )}
-        </View>
-        
-        {/* Grid layout for all products */}
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>All Products</Text>
-        <View style={styles.gridContainer}>
-          <FlatList
-            data={itemsData}
-            renderItem={renderGridItem}
-            keyExtractor={item => `product-${item.id}`}
-            numColumns={numColumns}
-            key={`grid-${numColumns}`}
-            scrollEnabled={false}
-            initialNumToRender={8}
-            maxToRenderPerBatch={4}
-            windowSize={5}
-            getItemLayout={(data, index) => ({
-              length: windowDimensions.width / numColumns,
-              offset: (windowDimensions.width / numColumns) * Math.floor(index / numColumns),
-              index,
-            })}
-          />
-        </View>
-      </ScrollView>
+      />
     </View>
   );
 };
