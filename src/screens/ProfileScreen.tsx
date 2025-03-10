@@ -75,7 +75,7 @@ const ProfileScreen: React.FC = () => {
           borderBottomColor: colors.border 
         }]}>
           <View style={[styles.profileImageContainer, { borderColor: colors.primary }]}>
-            <Text style={styles.profileInitials}>
+            <Text className='text-purple-700 text-4xl font-bold'>
               {getInitials(user?.name || 'User')}
             </Text>
           </View>

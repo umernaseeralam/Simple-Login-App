@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -25,7 +25,7 @@ interface ProductGridCardProps {
   };
 }
 
-const ProductGridCard: React.FC<ProductGridCardProps> = ({ item, width, colors }) => {
+const ProductGridCard: React.FC<ProductGridCardProps> = memo(({ item, width, colors }) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
@@ -54,7 +54,7 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({ item, width, colors }
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   gridCard: {

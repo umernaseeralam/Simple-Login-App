@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -20,7 +20,7 @@ interface ProductHorizontalCardProps {
   };
 }
 
-const ProductHorizontalCard: React.FC<ProductHorizontalCardProps> = ({ 
+const ProductHorizontalCard: React.FC<ProductHorizontalCardProps> = memo(({ 
   item, 
   width, 
   height, 
@@ -88,7 +88,7 @@ const ProductHorizontalCard: React.FC<ProductHorizontalCardProps> = ({
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   horizontalCard: {
