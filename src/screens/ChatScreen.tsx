@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  useWindowDimensions,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
@@ -40,6 +41,8 @@ const ChatScreen: React.FC = () => {
     },
   ]);
   const flatListRef = useRef<FlatList>(null);
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
 
   const sendMessage = () => {
     if (message.trim() === '') return;
@@ -124,7 +127,7 @@ const ChatScreen: React.FC = () => {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? (isLandscape ? 45 : 90) : 0}
       >
         <View style={[styles.inputContainer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TextInput

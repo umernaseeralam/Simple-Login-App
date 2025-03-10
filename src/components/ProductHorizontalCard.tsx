@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -29,57 +29,54 @@ const ProductHorizontalCard: React.FC<ProductHorizontalCardProps> = memo(({
   colors 
 }) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const imageWidth = isLandscape ? 100 : (isSmallPhonePortrait ? 80 : 120);
+  const imageSize = height * 0.8;
 
   return (
     <TouchableOpacity 
-      key={item.id}
       style={[
-        styles.horizontalCard, 
+        styles.card, 
         { 
-          width: width,
-          height: height,
+          width,
+          height,
           backgroundColor: colors.card,
-          shadowColor: colors.text,
           borderColor: colors.border,
         }
       ]}
       onPress={() => navigation.navigate('Chat', { item })}
     >
       <View style={[
-        styles.horizontalCardImage, 
+        styles.imageContainer, 
         { 
           backgroundColor: item.color,
-          width: imageWidth 
+          width: imageSize,
+          height: imageSize,
+          borderRadius: imageSize / 2,
         }
       ]}>
         <Text style={[
-          styles.cardImageText,
-          isSmallPhonePortrait && { fontSize: 28 }
+          styles.imageText,
+          isSmallPhonePortrait && { fontSize: 24 }
         ]}>
           {item.title.charAt(0)}
         </Text>
       </View>
-      <View style={styles.horizontalCardContent}>
+      <View style={styles.content}>
         <Text style={[
-          styles.cardTitle, 
+          styles.title, 
           { color: colors.text },
-          isSmallPhonePortrait && { fontSize: 14, marginBottom: 2 }
-        ]}>
+          isSmallPhonePortrait && { fontSize: 14 }
+        ]} numberOfLines={1}>
           {item.title}
         </Text>
-        <Text 
-          style={[
-            styles.cardDescription, 
-            { color: colors.secondaryText },
-            isSmallPhonePortrait && { fontSize: 12, marginBottom: 2 }
-          ]} 
-          numberOfLines={isLandscape ? 1 : 2}
-        >
+        <Text style={[
+          styles.description, 
+          { color: colors.secondaryText },
+          isSmallPhonePortrait && { fontSize: 12 }
+        ]} numberOfLines={isLandscape ? 1 : 2}>
           {item.description}
         </Text>
         <Text style={[
-          styles.cardPrice, 
+          styles.price, 
           { color: colors.primary },
           isSmallPhonePortrait && { fontSize: 14 }
         ]}>
@@ -91,42 +88,40 @@ const ProductHorizontalCard: React.FC<ProductHorizontalCardProps> = memo(({
 });
 
 const styles = StyleSheet.create({
-  horizontalCard: {
+  card: {
     flexDirection: 'row',
-    borderRadius: 10,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
+    alignItems: 'center',
     marginRight: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 10,
   },
-  horizontalCardImage: {
-    height: '100%',
+  imageContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 10,
   },
-  horizontalCardContent: {
-    padding: 10,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  cardImageText: {
-    fontSize: 36,
+  imageText: {
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#ffffff',
   },
-  cardTitle: {
+  content: {
+    flex: 1,
+    justifyContent: 'space-between',
+    height: '100%',
+    paddingVertical: 5,
+  },
+  title: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 4,
   },
-  cardDescription: {
+  description: {
     fontSize: 14,
-    marginBottom: 5,
+    marginBottom: 4,
   },
-  cardPrice: {
+  price: {
     fontSize: 16,
     fontWeight: 'bold',
   },
