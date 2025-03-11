@@ -448,15 +448,19 @@ const HomeScreen: React.FC = () => {
             <View className={isLandscape ? "flex-col" : "px-0 pb-2.5"}>
               {isLandscape ? (
                 <View className="flex-row flex-wrap p-2.5">
-                  {categories.map((category) =>
-                    renderCategorySection(category)
-                  )}
+                  {categories.map((category) => (
+                    <React.Fragment key={`category-section-${category.id}`}>
+                      {renderCategorySection(category)}
+                    </React.Fragment>
+                  ))}
                 </View>
               ) : (
                 <View className="px-2.5">
-                  {categories.map((category) =>
-                    renderCategorySection(category)
-                  )}
+                  {categories.map((category) => (
+                    <React.Fragment key={`category-section-${category.id}`}>
+                      {renderCategorySection(category)}
+                    </React.Fragment>
+                  ))}
                 </View>
               )}
             </View>
