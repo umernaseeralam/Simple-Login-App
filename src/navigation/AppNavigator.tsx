@@ -16,6 +16,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
+import SearchScreen from '../screens/SearchScreen';
 import ExampleScreen from '../screens/ExampleScreen';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -42,6 +43,7 @@ export type RootStackParamList = {
   ProfileTab: undefined;
   Settings: undefined;
   Chat: { item: Item };
+  Search: { products: Item[] };
   Example: undefined;
 };
 
@@ -142,6 +144,13 @@ const HomeTabNavigator = () => {
         {() => (
           <Layout>
             <ChatScreen />
+          </Layout>
+        )}
+      </Tab.Screen>
+      <Tab.Screen name="Search">
+        {() => (
+          <Layout>
+            <SearchScreen />
           </Layout>
         )}
       </Tab.Screen>

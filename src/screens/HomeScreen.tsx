@@ -474,6 +474,24 @@ const HomeScreen: React.FC = () => {
               <Text className="text-sm" style={{ color: colors.secondaryText }}>
                 Browse our collection of tech accessories
               </Text>
+              
+              {/* Search Bar */}
+              <TouchableOpacity 
+                className="mt-4 flex-row items-center p-2.5 rounded-lg border"
+                style={{ 
+                  backgroundColor: colors.background,
+                  borderColor: colors.border 
+                }}
+                onPress={() => navigation.navigate('Search', { products: itemsData })}
+              >
+                <Ionicons name="search" size={20} color={colors.secondaryText} />
+                <Text 
+                  className="ml-2.5 flex-1" 
+                  style={{ color: colors.secondaryText }}
+                >
+                  Search products...
+                </Text>
+              </TouchableOpacity>
             </View>
           );
         case "categories":
@@ -584,6 +602,7 @@ const HomeScreen: React.FC = () => {
       hasMoreItems,
       isLoading,
       loadMoreItems,
+      navigation,
     ]
   );
 
