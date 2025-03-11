@@ -16,6 +16,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
+import SearchScreen from '../screens/SearchScreen';
 import ExampleScreen from '../screens/ExampleScreen';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -42,6 +43,7 @@ export type RootStackParamList = {
   ProfileTab: undefined;
   Settings: undefined;
   Chat: { item: Item };
+  Search: { products: Item[] };
   Example: undefined;
 };
 
@@ -100,33 +102,15 @@ const HomeTabNavigator = () => {
   const { isLoggedIn } = useAuth();
   const { colors, isDarkMode } = useTheme();
   
-  // We don't need the Tab.Navigator anymore since we're using our custom Layout with BottomNavigator
   return (
-    <MainStack.Navigator
-      detachInactiveScreens={false}
-      screenOptions={{
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
         headerShown: false,
-        cardStyle: { backgroundColor: colors.background },
-        gestureEnabled: true,
-        gestureDirection: 'horizontal',
-        cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
-        transitionSpec: {
-          open: {
-            animation: 'timing',
-            config: {
-              duration: 200,
-            },
-          },
-          close: {
-            animation: 'timing',
-            config: {
-              duration: 150,
-            },
-          },
-        }
-      }}
+        tabBarStyle: { display: 'none' }, // Hide the default tab bar since we're using our custom BottomNavigator
+        tabBarButton: () => null, // This ensures the tab bar buttons aren't rendered
+      })}
     >
-      <MainStack.Screen 
+      <Tab.Screen 
         name="Home"
       >
         {() => (
@@ -134,43 +118,50 @@ const HomeTabNavigator = () => {
             <HomeScreen />
           </Layout>
         )}
-      </MainStack.Screen>
-      <MainStack.Screen name="Profile">
+      </Tab.Screen>
+      <Tab.Screen name="Profile">
         {() => (
           <Layout>
             {isLoggedIn ? <ProfileScreen /> : <LoginPromptScreen />}
           </Layout>
         )}
-      </MainStack.Screen>
-      <MainStack.Screen name="Settings">
+      </Tab.Screen>
+      <Tab.Screen name="Settings">
         {() => (
           <Layout>
             <SettingsScreen />
           </Layout>
         )}
-      </MainStack.Screen>
-      <MainStack.Screen name="EditProfile">
+      </Tab.Screen>
+      <Tab.Screen name="EditProfile">
         {() => (
           <Layout>
             <EditProfileScreen />
           </Layout>
         )}
-      </MainStack.Screen>
-      <MainStack.Screen name="Chat">
+      </Tab.Screen>
+      <Tab.Screen name="Chat">
         {() => (
           <Layout>
             <ChatScreen />
           </Layout>
         )}
-      </MainStack.Screen>
-      <MainStack.Screen name="Example">
+      </Tab.Screen>
+      <Tab.Screen name="Search">
+        {() => (
+          <Layout>
+            <SearchScreen />
+          </Layout>
+        )}
+      </Tab.Screen>
+      <Tab.Screen name="Example">
         {() => (
           <Layout>
             <ExampleScreen />
           </Layout>
         )}
-      </MainStack.Screen>
-    </MainStack.Navigator>
+      </Tab.Screen>
+    </Tab.Navigator>
   );
 };
 
@@ -202,44 +193,8 @@ const LoginPromptScreen = () => {
 const MainNavigator = () => {
   const { colors, isDarkMode } = useTheme();
   
-  return (
-    <MainStack.Navigator
-      detachInactiveScreens={false}
-      screenOptions={{
-        headerShown: false,
-        cardStyle: { backgroundColor: colors.background },
-        gestureEnabled: true,
-        gestureDirection: 'horizontal',
-        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        transitionSpec: {
-          open: {
-            animation: 'spring',
-            config: {
-              stiffness: 1000,
-              damping: 500,
-              mass: 3,
-              overshootClamping: false,
-              restDisplacementThreshold: 0.01,
-              restSpeedThreshold: 0.01,
-            },
-          },
-          close: {
-            animation: 'spring',
-            config: {
-              stiffness: 1000,
-              damping: 500,
-              mass: 3,
-              overshootClamping: false,
-              restDisplacementThreshold: 0.01,
-              restSpeedThreshold: 0.01,
-            },
-          },
-        }
-      }}
-    >
-      <MainStack.Screen name="TabNavigator" component={HomeTabNavigator} />
-    </MainStack.Navigator>
-  );
+  // Directly return the HomeTabNavigator without wrapping it in another stack
+  return <HomeTabNavigator />;
 };
 
 const AppNavigator: React.FC = () => {

@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
-import { RootStackParamList } from '../navigation/AppNavigator';
 
 type BottomNavigatorProps = {
   // Add any props if needed
@@ -19,7 +17,8 @@ type NavItem = {
 };
 
 const BottomNavigator: React.FC<BottomNavigatorProps> = () => {
-  const navigation = useNavigation();
+  // Using any type to avoid TypeScript errors with navigation
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const route = useRoute();
@@ -53,7 +52,6 @@ const BottomNavigator: React.FC<BottomNavigatorProps> = () => {
             key={item.name}
             style={styles.navItem}
             onPress={() => {
-              // @ts-ignore - We know these screens exist in our navigation
               navigation.navigate(item.screen);
             }}
           >
