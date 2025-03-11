@@ -16,8 +16,10 @@ import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
+import ExampleScreen from '../screens/ExampleScreen';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import Layout from '../components/Layout';
 
 // Define the item type for chat
 type Item = {
@@ -40,6 +42,7 @@ export type RootStackParamList = {
   ProfileTab: undefined;
   Settings: undefined;
   Chat: { item: Item };
+  Example: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -69,40 +72,57 @@ const HomeTabNavigator = () => {
   const { isLoggedIn } = useAuth();
   const { colors } = useTheme();
   
+  // We don't need the Tab.Navigator anymore since we're using our custom Layout with BottomNavigator
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName = '';
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.secondaryText,
+    <MainStack.Navigator
+      screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopColor: colors.border,
-        },
-      })}
+        cardStyle: { backgroundColor: colors.background }
+      }}
     >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ title: 'Home' }}
-      />
-      <Tab.Screen 
-        name="Profile" 
-        component={isLoggedIn ? ProfileScreen : LoginPromptScreen} 
-        options={{ title: 'Profile' }}
-      />
-    </Tab.Navigator>
+      <MainStack.Screen name="Home">
+        {() => (
+          <Layout>
+            <HomeScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Profile">
+        {() => (
+          <Layout>
+            {isLoggedIn ? <ProfileScreen /> : <LoginPromptScreen />}
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Settings">
+        {() => (
+          <Layout>
+            <SettingsScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="EditProfile">
+        {() => (
+          <Layout>
+            <EditProfileScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Chat">
+        {() => (
+          <Layout>
+            <ChatScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Example">
+        {() => (
+          <Layout>
+            <ExampleScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+    </MainStack.Navigator>
   );
 };
 
@@ -142,10 +162,6 @@ const MainNavigator = () => {
       }}
     >
       <MainStack.Screen name="TabNavigator" component={HomeTabNavigator} />
-      <MainStack.Screen name="ProfileDetail" component={ProfileScreen} />
-      <MainStack.Screen name="EditProfile" component={EditProfileScreen} />
-      <MainStack.Screen name="Settings" component={SettingsScreen} />
-      <MainStack.Screen name="Chat" component={ChatScreen} />
     </MainStack.Navigator>
   );
 };
