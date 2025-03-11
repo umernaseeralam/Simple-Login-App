@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StatusBar, Text, TouchableOpacity, StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StatusBar, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 // Import React Native Vector Icons
@@ -112,18 +112,19 @@ const LoginPromptScreen = () => {
   const { colors } = useTheme();
   
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.iconContainer, { backgroundColor: colors.primary }]}>
+    <View className="flex-1 justify-center items-center p-5" style={{ backgroundColor: colors.background }}>
+      <View className="w-20 h-20 rounded-full justify-center items-center mb-5" style={{ backgroundColor: colors.primary }}>
         <Ionicons name="person" size={50} color="#ffffff" />
       </View>
-      <Text style={[styles.title, { color: colors.text }]}>Please Sign In</Text>
-      <Text style={[styles.message, { color: colors.secondaryText }]}>You need to be signed in to view your profile</Text>
+      <Text className="text-2xl font-bold mb-2" style={{ color: colors.text }}>Please Sign In</Text>
+      <Text className="text-base text-center mb-8" style={{ color: colors.secondaryText }}>You need to be signed in to view your profile</Text>
       <TouchableOpacity 
-        style={[styles.button, { backgroundColor: colors.primary }]}
+        className="py-3 px-8 rounded-lg flex-row items-center justify-center"
+        style={{ backgroundColor: colors.primary }}
         onPress={() => navigation.navigate('Auth' as never)}
       >
-        <Ionicons name="log-in-outline" size={20} color="#ffffff" style={styles.buttonIcon} />
-        <Text style={styles.buttonText}>Sign In</Text>
+        <Ionicons name="log-in-outline" size={20} color="#ffffff" className="mr-2" />
+        <Text className="text-white text-base font-bold">Sign In</Text>
       </TouchableOpacity>
     </View>
   );
@@ -156,7 +157,7 @@ const AppNavigator: React.FC = () => {
   // Show loading screen while checking login status
   if (isLoading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+      <View className="flex-1 justify-center items-center" style={{ backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -183,52 +184,4 @@ const AppNavigator: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  message: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonIcon: {
-    marginRight: 8,
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
-
-export default AppNavigator; 
+export default AppNavigator;

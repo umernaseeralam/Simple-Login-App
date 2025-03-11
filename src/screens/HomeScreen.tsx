@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   View, 
   Text, 
-  StyleSheet, 
   TouchableOpacity, 
   ScrollView,
   useWindowDimensions,
@@ -126,22 +125,17 @@ const HomeScreen: React.FC = () => {
     const isSmallPhonePortrait = !isLandscape && windowDimensions.width < 768;
     
     return (
-      <View style={[
-        styles.categorySection,
-        isLandscape && { 
-          width: windowDimensions.width >= 1024 ? '33%' : '50%',
-          paddingRight: 5
-        },
-        isSmallPhonePortrait && {
-          marginVertical: 10,
-          paddingHorizontal: 10
-        }
-      ]}>
-        <Text style={[
-          styles.categoryTitle, 
-          { color: colors.text },
-          isSmallPhonePortrait && { fontSize: 16, marginBottom: 8 }
-        ]}>
+      <View 
+        className={`
+          ${isLandscape ? (windowDimensions.width >= 1024 ? 'w-1/3' : 'w-1/2') : ''}
+          ${isSmallPhonePortrait ? 'my-2.5 px-2.5' : 'my-4 px-4'}
+        `}
+        style={isLandscape ? { paddingRight: 5 } : {}}
+      >
+        <Text 
+          className={`font-bold ${isSmallPhonePortrait ? 'text-base mb-2' : 'text-lg mb-2.5'}`}
+          style={{ color: colors.text }}
+        >
           {category.title}
         </Text>
         <FlatList
@@ -150,10 +144,7 @@ const HomeScreen: React.FC = () => {
           renderItem={renderHorizontalItem}
           keyExtractor={item => `horizontal-${category.id}-${item.id}`}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.horizontalScrollContent,
-            isSmallPhonePortrait && { paddingRight: 10 }
-          ]}
+          className={`${isSmallPhonePortrait ? 'pr-2.5' : 'pr-4'}`}
           initialNumToRender={5}
           maxToRenderPerBatch={5}
           windowSize={5}
@@ -184,25 +175,25 @@ const HomeScreen: React.FC = () => {
     switch (item.type) {
       case 'header':
         return (
-          <View style={[styles.titleContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-            <Text className='text-2xl font-bold text-purple-700'>Featured Products</Text>
-            <Text style={[styles.pageSubtitle, { color: colors.secondaryText }]}>
+          <View 
+            className="p-4 border-b bg-slate-900"
+            style={{ backgroundColor: colors.card, borderBottomColor: colors.border }}
+          >
+            <Text className="text-2xl font-bold" style={{ color: colors.text }}>Featured Products</Text>
+            <Text className="text-sm mt-1.5" style={{ color: colors.secondaryText }}>
               Browse our collection of tech accessories
             </Text>
           </View>
         );
       case 'categories':
         return (
-          <View style={[
-            styles.horizontalSection, 
-            isLandscape ? styles.horizontalSectionLandscape : styles.horizontalSectionPortrait
-          ]}>
+          <View className={isLandscape ? "flex-col" : "px-0 pb-2.5"}>
             {isLandscape ? (
-              <View style={styles.categoriesGrid}>
+              <View className="flex-row flex-wrap p-2.5">
                 {categories.map(category => renderCategorySection(category))}
               </View>
             ) : (
-              <View style={styles.categoriesContainer}>
+              <View className="px-2.5">
                 {categories.map(category => renderCategorySection(category))}
               </View>
             )}
@@ -211,8 +202,8 @@ const HomeScreen: React.FC = () => {
       case 'allProducts':
         return (
           <>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>All Products</Text>
-            <View style={styles.gridContainer}>
+            <Text className="text-xl font-bold my-2.5 px-1.5" style={{ color: colors.text }}>All Products</Text>
+            <View className="p-1.5">
               <FlatList
                 data={itemsData}
                 renderItem={renderGridItem}
@@ -238,7 +229,7 @@ const HomeScreen: React.FC = () => {
   }, [colors, isLandscape, renderCategorySection, renderGridItem, numColumns, windowDimensions.width]);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
       <Header />
       
       <FlatList
@@ -246,72 +237,10 @@ const HomeScreen: React.FC = () => {
         renderItem={renderMainListItem}
         keyExtractor={item => item.id}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
+        className="flex-grow"
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  titleContainer: {
-    padding: 15,
-    borderBottomWidth: 1,
-  },
-  pageTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  pageSubtitle: {
-    fontSize: 14,
-    marginTop: 5,
-  },
-  horizontalSection: {
-    paddingBottom: 10,
-  },
-  horizontalSectionLandscape: {
-    flexDirection: 'column',
-  },
-  horizontalSectionPortrait: {
-    paddingHorizontal: 0,
-  },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 10,
-  },
-  categoriesContainer: {
-    paddingHorizontal: 10,
-  },
-  gridSection: {
-    padding: 1,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginVertical: 10,
-    paddingHorizontal: 5,
-  },
-  gridContainer: {
-    padding: 5,
-  },
-  categorySection: {
-    marginVertical: 15,
-    paddingHorizontal: 15,
-  },
-  categoryTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  horizontalScrollContent: {
-    paddingRight: 15,
-  },
-});
 
 export default React.memo(HomeScreen); 
