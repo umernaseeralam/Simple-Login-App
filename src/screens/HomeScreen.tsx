@@ -8,7 +8,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTheme } from "../context/ThemeContext";
@@ -350,23 +350,51 @@ const HomeScreen: React.FC = () => {
     [isLandscape, windowDimensions.width, horizontalItemWidth, colors]
   );
 
+  const [categoryScrollPositions, setCategoryScrollPositions] = useState<{[key: string]: number}>({});
+  const categoryListRefs = useMemo(() => 
+    categories.reduce((acc, category) => {
+      acc[`category-${category.id}`] = React.createRef<FlatList<Item>>();
+      return acc;
+    }, {} as {[key: string]: React.RefObject<FlatList<Item>>}), 
+  []);
+
+  // Save scroll position when user scrolls a category
+  const handleCategoryScroll = useCallback((categoryId: number, event: any) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    setCategoryScrollPositions(prev => ({
+      ...prev,
+      [`category-${categoryId}`]: offsetX
+    }));
+  }, []);
+
+  // Restore scroll positions when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      // Small delay to ensure components are rendered
+      const timer = setTimeout(() => {
+        Object.entries(categoryScrollPositions).forEach(([key, position]) => {
+          const ref = categoryListRefs[key];
+          if (ref.current && position > 0) {
+            ref.current?.scrollToOffset({ offset: position, animated: false });
+          }
+        });
+      }, 200);
+      
+      return () => clearTimeout(timer);
+    }, [categoryScrollPositions, categoryListRefs])
+  );
+
   const renderCategorySection = useCallback(
     (category: { id: number; title: string; data: Item[] }) => {
       const isSmallPhonePortrait = !isLandscape && windowDimensions.width < 768;
+      const categoryKey = `category-${category.id}`;
 
       return (
         <View
           className={`
-          ${
-            isLandscape
-              ? windowDimensions.width >= 1024
-                ? "w-1/3"
-                : "w-1/2"
-              : ""
-          }
+          w-full
           ${isSmallPhonePortrait ? "my-2.5 px-2.5" : "my-4 px-4"}
         `}
-          style={isLandscape ? { paddingRight: 5 } : {}}
         >
           <Text
             className={`font-bold ${
@@ -377,6 +405,7 @@ const HomeScreen: React.FC = () => {
             {category.title}
           </Text>
           <FlatList
+            ref={categoryListRefs[categoryKey]}
             horizontal
             data={category.data}
             renderItem={renderHorizontalItem}
@@ -387,6 +416,8 @@ const HomeScreen: React.FC = () => {
             maxToRenderPerBatch={5}
             windowSize={5}
             removeClippedSubviews={true}
+            onScroll={(e) => handleCategoryScroll(category.id, e)}
+            scrollEventThrottle={16}
             getItemLayout={(data, index) => ({
               length: horizontalItemWidth,
               offset: horizontalItemWidth * index,
@@ -402,6 +433,8 @@ const HomeScreen: React.FC = () => {
       colors,
       renderHorizontalItem,
       horizontalItemWidth,
+      categoryListRefs,
+      handleCategoryScroll,
     ]
   );
 
@@ -445,24 +478,14 @@ const HomeScreen: React.FC = () => {
           );
         case "categories":
           return (
-            <View className={isLandscape ? "flex-col" : "px-0 pb-2.5"}>
-              {isLandscape ? (
-                <View className="flex-row flex-wrap p-2.5">
-                  {categories.map((category) => (
-                    <React.Fragment key={`category-section-${category.id}`}>
-                      {renderCategorySection(category)}
-                    </React.Fragment>
-                  ))}
-                </View>
-              ) : (
-                <View className="px-2.5">
-                  {categories.map((category) => (
-                    <React.Fragment key={`category-section-${category.id}`}>
-                      {renderCategorySection(category)}
-                    </React.Fragment>
-                  ))}
-                </View>
-              )}
+            <View className="px-0 pb-2.5">
+              <View className="px-2.5">
+                {categories.map((category) => (
+                  <React.Fragment key={`category-section-${category.id}`}>
+                    {renderCategorySection(category)}
+                  </React.Fragment>
+                ))}
+              </View>
             </View>
           );
         case "allProducts":
@@ -580,6 +603,8 @@ const HomeScreen: React.FC = () => {
           minIndexForVisible: 0,
           autoscrollToTopThreshold: 10,
         }}
+        removeClippedSubviews={false}
+        initialNumToRender={sections.length}
       />
     </View>
   );

@@ -126,7 +126,9 @@ const HomeTabNavigator = () => {
         }
       }}
     >
-      <MainStack.Screen name="Home">
+      <MainStack.Screen 
+        name="Home"
+      >
         {() => (
           <Layout>
             <HomeScreen />
