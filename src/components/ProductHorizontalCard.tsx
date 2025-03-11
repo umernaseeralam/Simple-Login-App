@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -33,98 +33,66 @@ const ProductHorizontalCard: React.FC<ProductHorizontalCardProps> = memo(({
 
   return (
     <TouchableOpacity 
-      style={[
-        styles.card, 
-        { 
-          width,
-          height,
-          backgroundColor: colors.card,
-          borderColor: colors.border,
-        }
-      ]}
+      className="flex-row items-center mr-4 rounded-lg border p-2.5"
+      style={{ 
+        width,
+        height,
+        backgroundColor: colors.card,
+        borderColor: colors.border,
+      }}
       onPress={() => navigation.navigate('Chat', { item })}
     >
-      <View style={[
-        styles.imageContainer, 
-        { 
+      <View 
+        className="justify-center items-center mr-2.5"
+        style={{ 
           backgroundColor: item.color,
           width: imageSize,
           height: imageSize,
           borderRadius: imageSize / 2,
-        }
-      ]}>
-        <Text style={[
-          styles.imageText,
-          isSmallPhonePortrait && { fontSize: 24 }
-        ]}>
+        }}
+      >
+        <Text 
+          className="font-bold text-white"
+          style={{
+            fontSize: isSmallPhonePortrait ? 24 : 32
+          }}
+        >
           {item.title.charAt(0)}
         </Text>
       </View>
-      <View style={styles.content}>
-        <Text style={[
-          styles.title, 
-          { color: colors.text },
-          isSmallPhonePortrait && { fontSize: 14 }
-        ]} numberOfLines={1}>
+      <View className="flex-1 justify-between h-full py-1.5">
+        <Text 
+          className="font-bold mb-1"
+          style={{
+            color: colors.text,
+            fontSize: isSmallPhonePortrait ? 14 : 16
+          }}
+          numberOfLines={1}
+        >
           {item.title}
         </Text>
-        <Text style={[
-          styles.description, 
-          { color: colors.secondaryText },
-          isSmallPhonePortrait && { fontSize: 12 }
-        ]} numberOfLines={isLandscape ? 1 : 2}>
+        <Text 
+          className="mb-1"
+          style={{
+            color: colors.secondaryText,
+            fontSize: isSmallPhonePortrait ? 12 : 14
+          }}
+          numberOfLines={isLandscape ? 1 : 2}
+        >
           {item.description}
         </Text>
-        <Text style={[
-          styles.price, 
-          { color: colors.primary },
-          isSmallPhonePortrait && { fontSize: 14 }
-        ]}>
+        <Text 
+          className="font-bold"
+          style={{
+            color: colors.primary,
+            fontSize: isSmallPhonePortrait ? 14 : 16
+          }}
+        >
           {item.price}
         </Text>
       </View>
     </TouchableOpacity>
   );
-});
-
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    padding: 10,
-  },
-  imageContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  imageText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'space-between',
-    height: '100%',
-    paddingVertical: 5,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  description: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
 });
 
 export default ProductHorizontalCard; 

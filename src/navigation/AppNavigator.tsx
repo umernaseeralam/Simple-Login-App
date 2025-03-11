@@ -1,8 +1,8 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { createStackNavigator, CardStyleInterpolators, TransitionPresets } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StatusBar, Text, TouchableOpacity, StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StatusBar, Text, TouchableOpacity, View, ActivityIndicator, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 // Import React Native Vector Icons
@@ -16,8 +16,10 @@ import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
+import ExampleScreen from '../screens/ExampleScreen';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import Layout from '../components/Layout';
 
 // Define the item type for chat
 type Item = {
@@ -40,6 +42,7 @@ export type RootStackParamList = {
   ProfileTab: undefined;
   Settings: undefined;
   Chat: { item: Item };
+  Example: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -49,13 +52,41 @@ const Tab = createBottomTabNavigator();
 
 // Auth Navigator - contains Login and SignUp screens
 const AuthNavigator = () => {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   
   return (
     <AuthStack.Navigator
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: colors.background }
+        cardStyle: { backgroundColor: colors.background },
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        transitionSpec: {
+          open: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+          close: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+        }
       }}
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
@@ -67,42 +98,79 @@ const AuthNavigator = () => {
 // Home Tab Navigator
 const HomeTabNavigator = () => {
   const { isLoggedIn } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   
+  // We don't need the Tab.Navigator anymore since we're using our custom Layout with BottomNavigator
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName = '';
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.secondaryText,
+    <MainStack.Navigator
+      detachInactiveScreens={false}
+      screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopColor: colors.border,
-        },
-      })}
+        cardStyle: { backgroundColor: colors.background },
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
+        transitionSpec: {
+          open: {
+            animation: 'timing',
+            config: {
+              duration: 200,
+            },
+          },
+          close: {
+            animation: 'timing',
+            config: {
+              duration: 150,
+            },
+          },
+        }
+      }}
     >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ title: 'Home' }}
-      />
-      <Tab.Screen 
-        name="Profile" 
-        component={isLoggedIn ? ProfileScreen : LoginPromptScreen} 
-        options={{ title: 'Profile' }}
-      />
-    </Tab.Navigator>
+      <MainStack.Screen 
+        name="Home"
+      >
+        {() => (
+          <Layout>
+            <HomeScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Profile">
+        {() => (
+          <Layout>
+            {isLoggedIn ? <ProfileScreen /> : <LoginPromptScreen />}
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Settings">
+        {() => (
+          <Layout>
+            <SettingsScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="EditProfile">
+        {() => (
+          <Layout>
+            <EditProfileScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Chat">
+        {() => (
+          <Layout>
+            <ChatScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+      <MainStack.Screen name="Example">
+        {() => (
+          <Layout>
+            <ExampleScreen />
+          </Layout>
+        )}
+      </MainStack.Screen>
+    </MainStack.Navigator>
   );
 };
 
@@ -112,18 +180,19 @@ const LoginPromptScreen = () => {
   const { colors } = useTheme();
   
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.iconContainer, { backgroundColor: colors.primary }]}>
+    <View className="flex-1 justify-center items-center p-5" style={{ backgroundColor: colors.background }}>
+      <View className="w-20 h-20 rounded-full justify-center items-center mb-5" style={{ backgroundColor: colors.primary }}>
         <Ionicons name="person" size={50} color="#ffffff" />
       </View>
-      <Text style={[styles.title, { color: colors.text }]}>Please Sign In</Text>
-      <Text style={[styles.message, { color: colors.secondaryText }]}>You need to be signed in to view your profile</Text>
+      <Text className="text-2xl font-bold mb-2" style={{ color: colors.text }}>Please Sign In</Text>
+      <Text className="text-base text-center mb-8" style={{ color: colors.secondaryText }}>You need to be signed in to view your profile</Text>
       <TouchableOpacity 
-        style={[styles.button, { backgroundColor: colors.primary }]}
+        className="py-3 px-8 rounded-lg flex-row items-center justify-center"
+        style={{ backgroundColor: colors.primary }}
         onPress={() => navigation.navigate('Auth' as never)}
       >
-        <Ionicons name="log-in-outline" size={20} color="#ffffff" style={styles.buttonIcon} />
-        <Text style={styles.buttonText}>Sign In</Text>
+        <Ionicons name="log-in-outline" size={20} color="#ffffff" className="mr-2" />
+        <Text className="text-white text-base font-bold">Sign In</Text>
       </TouchableOpacity>
     </View>
   );
@@ -131,43 +200,111 @@ const LoginPromptScreen = () => {
 
 // Main Navigator
 const MainNavigator = () => {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   
   return (
     <MainStack.Navigator
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: colors.background }
+        cardStyle: { backgroundColor: colors.background },
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        transitionSpec: {
+          open: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+          close: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+        }
       }}
     >
       <MainStack.Screen name="TabNavigator" component={HomeTabNavigator} />
-      <MainStack.Screen name="ProfileDetail" component={ProfileScreen} />
-      <MainStack.Screen name="EditProfile" component={EditProfileScreen} />
-      <MainStack.Screen name="Settings" component={SettingsScreen} />
-      <MainStack.Screen name="Chat" component={ChatScreen} />
     </MainStack.Navigator>
   );
 };
 
 const AppNavigator: React.FC = () => {
   const { isLoading, isLoggedIn } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+
+  // Create custom theme with proper background colors
+  const customTheme = {
+    ...(isDarkMode ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDarkMode ? DarkTheme.colors : DefaultTheme.colors),
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+      primary: colors.primary,
+    },
+  };
 
   // Show loading screen while checking login status
   if (isLoading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+      <View className="flex-1 justify-center items-center" style={{ backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+    <NavigationContainer theme={customTheme}>
+      <StatusBar 
+        barStyle={isDarkMode ? "light-content" : "dark-content"} 
+        backgroundColor={colors.background} 
+      />
       <Stack.Navigator
+        detachInactiveScreens={false}
         screenOptions={{
           headerShown: false,
+          gestureEnabled: true,
+          cardStyle: { backgroundColor: colors.background },
+          ...TransitionPresets.SlideFromRightIOS,
+          transitionSpec: {
+            open: {
+              animation: 'spring',
+              config: {
+                stiffness: 1000,
+                damping: 500,
+                mass: 3,
+                overshootClamping: false,
+                restDisplacementThreshold: 0.01,
+                restSpeedThreshold: 0.01,
+              },
+            },
+            close: {
+              animation: 'spring',
+              config: {
+                stiffness: 1000,
+                damping: 500,
+                mass: 3,
+                overshootClamping: false,
+                restDisplacementThreshold: 0.01,
+                restSpeedThreshold: 0.01,
+              },
+            },
+          }
         }}
       >
         <Stack.Screen name="Main" component={MainNavigator} />
@@ -176,6 +313,31 @@ const AppNavigator: React.FC = () => {
           component={AuthNavigator} 
           options={{
             presentation: 'modal',
+            cardStyleInterpolator: CardStyleInterpolators.forModalPresentationIOS,
+            transitionSpec: {
+              open: {
+                animation: 'spring',
+                config: {
+                  stiffness: 1000,
+                  damping: 500,
+                  mass: 3,
+                  overshootClamping: true,
+                  restDisplacementThreshold: 0.01,
+                  restSpeedThreshold: 0.01,
+                },
+              },
+              close: {
+                animation: 'spring',
+                config: {
+                  stiffness: 1000,
+                  damping: 500,
+                  mass: 3,
+                  overshootClamping: false,
+                  restDisplacementThreshold: 0.01,
+                  restSpeedThreshold: 0.01,
+                },
+              },
+            }
           }}
         />
       </Stack.Navigator>
@@ -183,52 +345,4 @@ const AppNavigator: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  message: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonIcon: {
-    marginRight: 8,
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
-
-export default AppNavigator; 
+export default AppNavigator;

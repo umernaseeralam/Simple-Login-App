@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme, ThemeType } from '../context/ThemeContext';
-import Header from '../components/Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const SettingsScreen: React.FC = () => {
@@ -15,7 +14,6 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Header showProfileButton={true} />
       <ScrollView style={styles.scrollView}>
         <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
@@ -32,26 +30,25 @@ const SettingsScreen: React.FC = () => {
                 ]}
                 onPress={() => toggleTheme(option.value)}
               >
-                <Ionicons
-                  name={option.icon}
-                  size={24}
-                  color={theme === option.value ? colors.primary : colors.secondaryText}
-                  style={styles.themeIcon}
+                <Ionicons 
+                  name={option.icon} 
+                  size={24} 
+                  color={theme === option.value ? colors.primary : colors.secondaryText} 
                 />
-                <Text
+                <Text 
                   style={[
-                    styles.themeLabel,
+                    styles.themeOptionText, 
                     { color: theme === option.value ? colors.primary : colors.text }
                   ]}
                 >
                   {option.label}
                 </Text>
                 {theme === option.value && (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={20}
-                    color={colors.primary}
-                    style={styles.checkIcon}
+                  <Ionicons 
+                    name="checkmark-circle" 
+                    size={20} 
+                    color={colors.primary} 
+                    style={styles.checkIcon} 
                   />
                 )}
               </TouchableOpacity>
@@ -99,10 +96,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
   },
-  themeIcon: {
-    marginRight: 12,
-  },
-  themeLabel: {
+  themeOptionText: {
     fontSize: 16,
     fontWeight: '500',
     flex: 1,
