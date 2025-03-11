@@ -11,7 +11,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 type RootStackParamList = {
   Home: undefined;
   Profile: undefined;
-  ProfileDetail: undefined;
   Login: undefined;
   SignUp: undefined;
   EditProfile: undefined;
@@ -72,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ showProfileButton = true }) => {
                 borderColor: '#e0e0e0',
                 backgroundColor: '#3498db'
               }}
-              onPress={() => navigation.navigate('ProfileDetail')}
+              onPress={() => navigation.navigate('Profile')}
             >
               <Text className="text-white text-base font-bold">
                 {getInitials(user?.name || 'User')}

@@ -1,8 +1,8 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { createStackNavigator, CardStyleInterpolators, TransitionPresets } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StatusBar, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { StatusBar, Text, TouchableOpacity, View, ActivityIndicator, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 // Import React Native Vector Icons
@@ -52,13 +52,41 @@ const Tab = createBottomTabNavigator();
 
 // Auth Navigator - contains Login and SignUp screens
 const AuthNavigator = () => {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   
   return (
     <AuthStack.Navigator
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: colors.background }
+        cardStyle: { backgroundColor: colors.background },
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        transitionSpec: {
+          open: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+          close: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+        }
       }}
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
@@ -70,14 +98,32 @@ const AuthNavigator = () => {
 // Home Tab Navigator
 const HomeTabNavigator = () => {
   const { isLoggedIn } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   
   // We don't need the Tab.Navigator anymore since we're using our custom Layout with BottomNavigator
   return (
     <MainStack.Navigator
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: colors.background }
+        cardStyle: { backgroundColor: colors.background },
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
+        transitionSpec: {
+          open: {
+            animation: 'timing',
+            config: {
+              duration: 200,
+            },
+          },
+          close: {
+            animation: 'timing',
+            config: {
+              duration: 150,
+            },
+          },
+        }
       }}
     >
       <MainStack.Screen name="Home">
@@ -152,13 +198,41 @@ const LoginPromptScreen = () => {
 
 // Main Navigator
 const MainNavigator = () => {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   
   return (
     <MainStack.Navigator
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: colors.background }
+        cardStyle: { backgroundColor: colors.background },
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        transitionSpec: {
+          open: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+          close: {
+            animation: 'spring',
+            config: {
+              stiffness: 1000,
+              damping: 500,
+              mass: 3,
+              overshootClamping: false,
+              restDisplacementThreshold: 0.01,
+              restSpeedThreshold: 0.01,
+            },
+          },
+        }
       }}
     >
       <MainStack.Screen name="TabNavigator" component={HomeTabNavigator} />
@@ -168,7 +242,20 @@ const MainNavigator = () => {
 
 const AppNavigator: React.FC = () => {
   const { isLoading, isLoggedIn } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+
+  // Create custom theme with proper background colors
+  const customTheme = {
+    ...(isDarkMode ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDarkMode ? DarkTheme.colors : DefaultTheme.colors),
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+      primary: colors.primary,
+    },
+  };
 
   // Show loading screen while checking login status
   if (isLoading) {
@@ -180,11 +267,42 @@ const AppNavigator: React.FC = () => {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+    <NavigationContainer theme={customTheme}>
+      <StatusBar 
+        barStyle={isDarkMode ? "light-content" : "dark-content"} 
+        backgroundColor={colors.background} 
+      />
       <Stack.Navigator
+        detachInactiveScreens={false}
         screenOptions={{
           headerShown: false,
+          gestureEnabled: true,
+          cardStyle: { backgroundColor: colors.background },
+          ...TransitionPresets.SlideFromRightIOS,
+          transitionSpec: {
+            open: {
+              animation: 'spring',
+              config: {
+                stiffness: 1000,
+                damping: 500,
+                mass: 3,
+                overshootClamping: false,
+                restDisplacementThreshold: 0.01,
+                restSpeedThreshold: 0.01,
+              },
+            },
+            close: {
+              animation: 'spring',
+              config: {
+                stiffness: 1000,
+                damping: 500,
+                mass: 3,
+                overshootClamping: false,
+                restDisplacementThreshold: 0.01,
+                restSpeedThreshold: 0.01,
+              },
+            },
+          }
         }}
       >
         <Stack.Screen name="Main" component={MainNavigator} />
@@ -193,6 +311,31 @@ const AppNavigator: React.FC = () => {
           component={AuthNavigator} 
           options={{
             presentation: 'modal',
+            cardStyleInterpolator: CardStyleInterpolators.forModalPresentationIOS,
+            transitionSpec: {
+              open: {
+                animation: 'spring',
+                config: {
+                  stiffness: 1000,
+                  damping: 500,
+                  mass: 3,
+                  overshootClamping: true,
+                  restDisplacementThreshold: 0.01,
+                  restSpeedThreshold: 0.01,
+                },
+              },
+              close: {
+                animation: 'spring',
+                config: {
+                  stiffness: 1000,
+                  damping: 500,
+                  mass: 3,
+                  overshootClamping: false,
+                  restDisplacementThreshold: 0.01,
+                  restSpeedThreshold: 0.01,
+                },
+              },
+            }
           }}
         />
       </Stack.Navigator>
