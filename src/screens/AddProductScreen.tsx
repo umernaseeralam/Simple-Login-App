@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  StatusBar,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -100,7 +102,7 @@ export const OptionButtons: React.FC<{
 };
 
 const AddProductScreen: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { addProduct } = useProducts();
   const { user } = useAuth();
@@ -222,206 +224,212 @@ const AddProductScreen: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text className="text-lg font-bold">New Listing</Text>
-        <TouchableOpacity
-          className={`px-3 py-1.5 ${
-            isSubmitting ? "opacity-70" : "opacity-100"
-          }`}
-          onPress={handleSubmit}
-          disabled={isSubmitting}
-        >
-          <Text className="text-green-500 font-bold">Submit</Text>
-        </TouchableOpacity>
-      </View>
-
-      {isSubmitting ? (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text className="mt-4 text-base">Adding product...</Text>
+    <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <StatusBar
+        backgroundColor={colors.background}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+      />
+      <View className="flex-1 bg-white">
+        <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text className="text-lg font-bold">New Listing</Text>
+          <TouchableOpacity
+            className={`px-3 py-1.5 ${
+              isSubmitting ? "opacity-70" : "opacity-100"
+            }`}
+            onPress={handleSubmit}
+            disabled={isSubmitting}
+          >
+            <Text className="text-green-500 font-bold">Submit</Text>
+          </TouchableOpacity>
         </View>
-      ) : (
-        <ScrollView className="flex-1">
-          {/* Images Section */}
-          <View className="p-4 border-b border-gray-200">
-            <TouchableOpacity
-              className="h-24 border border-dashed border-gray-500 rounded-lg justify-center items-center"
-              onPress={handleAddImage}
-            >
-              <Ionicons
-                name="camera-outline"
-                size={24}
-                color={colors.secondaryText}
-              />
-              <Text className="mt-2 text-gray-500">Add more photos</Text>
-            </TouchableOpacity>
+
+        {isSubmitting ? (
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text className="mt-4 text-base">Adding product...</Text>
           </View>
-
-          {/* Basic Info Section */}
-          <SectionHeader title="Brand" required />
-          <FormField
-            placeholder="Search for brand"
-            value={brand}
-            onChangeText={setBrand}
-          />
-
-          <SectionHeader title="Title" required />
-          <FormField
-            placeholder="Product Title"
-            value={title}
-            onChangeText={setTitle}
-          />
-
-          <SectionHeader title="Description" />
-          <FormField
-            placeholder="Product Description..."
-            value={description}
-            onChangeText={setDescription}
-            multiline={true}
-          />
-
-          <SectionHeader title="Comes with" />
-          <View className="px-4 py-3 border-b border-gray-200">
-            <View className="flex-row items-center">
-              <TextInput
-                className="flex-1 h-12 border border-gray-500 rounded-md px-3 mr-2"
-                value={comesWithText}
-                onChangeText={setComesWithText}
-                placeholder="Add item"
-                placeholderTextColor={colors.secondaryText}
-              />
+        ) : (
+          <ScrollView className="flex-1">
+            {/* Images Section */}
+            <View className="p-4 border-b border-gray-200">
               <TouchableOpacity
-                className="px-3 py-2 bg-blue-500 rounded"
-                onPress={handleAddComesWithItem}
+                className="h-24 border border-dashed border-gray-500 rounded-lg justify-center items-center"
+                onPress={handleAddImage}
               >
-                <Text className="text-white font-bold">Add</Text>
+                <Ionicons
+                  name="camera-outline"
+                  size={24}
+                  color={colors.secondaryText}
+                />
+                <Text className="mt-2 text-gray-500">Add more photos</Text>
               </TouchableOpacity>
             </View>
 
-            {comesWith.length > 0 && (
-              <View className="flex-row flex-wrap mt-3">
-                {comesWith.map((item, index) => (
-                  <View
-                    key={index}
-                    className="flex-row items-center px-2 py-1 bg-gray-100 rounded-full mr-2 mb-2"
-                  >
-                    <Text className="mr-1">{item}</Text>
-                    <TouchableOpacity
-                      onPress={() => handleRemoveComesWithItem(index)}
-                    >
-                      <Ionicons
-                        name="close-circle"
-                        size={18}
-                        color={colors.secondaryText}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                ))}
+            {/* Basic Info Section */}
+            <SectionHeader title="Brand" required />
+            <FormField
+              placeholder="Search for brand"
+              value={brand}
+              onChangeText={setBrand}
+            />
+
+            <SectionHeader title="Title" required />
+            <FormField
+              placeholder="Product Title"
+              value={title}
+              onChangeText={setTitle}
+            />
+
+            <SectionHeader title="Description" />
+            <FormField
+              placeholder="Product Description..."
+              value={description}
+              onChangeText={setDescription}
+              multiline={true}
+            />
+
+            <SectionHeader title="Comes with" />
+            <View className="px-4 py-3 border-b border-gray-200">
+              <View className="flex-row items-center">
+                <TextInput
+                  className="flex-1 h-12 border border-gray-500 rounded-md px-3 mr-2"
+                  value={comesWithText}
+                  onChangeText={setComesWithText}
+                  placeholder="Add item"
+                  placeholderTextColor={colors.secondaryText}
+                />
+                <TouchableOpacity
+                  className="px-3 py-2 bg-blue-500 rounded"
+                  onPress={handleAddComesWithItem}
+                >
+                  <Text className="text-white font-bold">Add</Text>
+                </TouchableOpacity>
               </View>
-            )}
-          </View>
 
-          <SectionHeader title="Pricing" required />
-          <FormField
-            label="Asking Price"
-            value={price}
-            onChangeText={setPrice}
-            placeholder="$0"
-            keyboardType="numeric"
-          />
-
-          <SectionHeader title="Watch Info" />
-          <FormField label="Model" value={model} onChangeText={setModel} />
-          <View className="flex-row flex-wrap">
-            <View className="w-1/2">
-              <FormField label="Ref" value={ref} onChangeText={setRef} />
+              {comesWith.length > 0 && (
+                <View className="flex-row flex-wrap mt-3">
+                  {comesWith.map((item, index) => (
+                    <View
+                      key={index}
+                      className="flex-row items-center px-2 py-1 bg-gray-100 rounded-full mr-2 mb-2"
+                    >
+                      <Text className="mr-1">{item}</Text>
+                      <TouchableOpacity
+                        onPress={() => handleRemoveComesWithItem(index)}
+                      >
+                        <Ionicons
+                          name="close-circle"
+                          size={18}
+                          color={colors.secondaryText}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
-            <View className="w-1/2">
-              <FormField
-                label="Serial"
-                value={serial}
-                onChangeText={setSerial}
-              />
+
+            <SectionHeader title="Pricing" required />
+            <FormField
+              label="Asking Price"
+              value={price}
+              onChangeText={setPrice}
+              placeholder="$0"
+              keyboardType="numeric"
+            />
+
+            <SectionHeader title="Watch Info" />
+            <FormField label="Model" value={model} onChangeText={setModel} />
+            <View className="flex-row flex-wrap">
+              <View className="w-1/2">
+                <FormField label="Ref" value={ref} onChangeText={setRef} />
+              </View>
+              <View className="w-1/2">
+                <FormField
+                  label="Serial"
+                  value={serial}
+                  onChangeText={setSerial}
+                />
+              </View>
+              <View className="w-1/2">
+                <FormField label="Year" value={year} onChangeText={setYear} />
+              </View>
+              <View className="w-1/2">
+                <FormField
+                  label="Time Score"
+                  value={timeScore}
+                  onChangeText={setTimeScore}
+                />
+              </View>
             </View>
-            <View className="w-1/2">
-              <FormField label="Year" value={year} onChangeText={setYear} />
-            </View>
-            <View className="w-1/2">
-              <FormField
-                label="Time Score"
-                value={timeScore}
-                onChangeText={setTimeScore}
-              />
-            </View>
-          </View>
 
-          <SectionHeader title="Condition" />
-          <OptionButtons
-            options={conditionOptions}
-            selectedOption={condition}
-            onSelect={setCondition}
-          />
+            <SectionHeader title="Condition" />
+            <OptionButtons
+              options={conditionOptions}
+              selectedOption={condition}
+              onSelect={setCondition}
+            />
 
-          <SectionHeader title="Polish" />
-          <OptionButtons
-            options={polishOptions}
-            selectedOption={polish}
-            onSelect={setPolish}
-          />
+            <SectionHeader title="Polish" />
+            <OptionButtons
+              options={polishOptions}
+              selectedOption={polish}
+              onSelect={setPolish}
+            />
 
-          <SectionHeader title="Crystal" />
-          <OptionButtons
-            options={crystalOptions}
-            selectedOption={crystal}
-            onSelect={setCrystal}
-          />
+            <SectionHeader title="Crystal" />
+            <OptionButtons
+              options={crystalOptions}
+              selectedOption={crystal}
+              onSelect={setCrystal}
+            />
 
-          <SectionHeader title="Dial" />
-          <OptionButtons
-            options={dialOptions}
-            selectedOption={dial}
-            onSelect={setDial}
-          />
+            <SectionHeader title="Dial" />
+            <OptionButtons
+              options={dialOptions}
+              selectedOption={dial}
+              onSelect={setDial}
+            />
 
-          <SectionHeader title="Bezel" />
-          <OptionButtons
-            options={bezelOptions}
-            selectedOption={bezel}
-            onSelect={setBezel}
-          />
+            <SectionHeader title="Bezel" />
+            <OptionButtons
+              options={bezelOptions}
+              selectedOption={bezel}
+              onSelect={setBezel}
+            />
 
-          <SectionHeader title="Movement" />
-          <OptionButtons
-            options={movementOptions}
-            selectedOption={movement}
-            onSelect={setMovement}
-          />
+            <SectionHeader title="Movement" />
+            <OptionButtons
+              options={movementOptions}
+              selectedOption={movement}
+              onSelect={setMovement}
+            />
 
-          <SectionHeader title="Bracelet" />
-          <OptionButtons
-            options={braceletOptions}
-            selectedOption={bracelet}
-            onSelect={setBracelet}
-          />
+            <SectionHeader title="Bracelet" />
+            <OptionButtons
+              options={braceletOptions}
+              selectedOption={bracelet}
+              onSelect={setBracelet}
+            />
 
-          <SectionHeader title="Additional Notes" />
-          <TextInput
-            className="h-30 border border-gray-500 rounded-md p-3 m-4 text-base"
-            value={additionalNotes}
-            onChangeText={setAdditionalNotes}
-            placeholder="Type additional notes here"
-            placeholderTextColor={colors.secondaryText}
-            multiline
-            textAlignVertical="top"
-          />
+            <SectionHeader title="Additional Notes" />
+            <TextInput
+              className="h-30 border border-gray-500 rounded-md p-3 m-4 text-base"
+              value={additionalNotes}
+              onChangeText={setAdditionalNotes}
+              placeholder="Type additional notes here"
+              placeholderTextColor={colors.secondaryText}
+              multiline
+              textAlignVertical="top"
+            />
 
-          <View className="h-10" />
-        </ScrollView>
-      )}
+            <View className="h-10" />
+          </ScrollView>
+        )}
+      </View>
     </View>
   );
 };
