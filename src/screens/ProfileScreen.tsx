@@ -13,6 +13,7 @@ type RootStackParamList = {
   EditProfile: undefined;
   Auth: undefined;
   ProfileTab: undefined;
+  UserInventory: undefined;
 };
 
 const ProfileScreen: React.FC = () => {
@@ -100,6 +101,14 @@ const ProfileScreen: React.FC = () => {
           >
             <Ionicons name="create-outline" size={20} color="#ffffff" style={styles.actionIcon} />
             <Text style={styles.actionButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.actionButton, { backgroundColor: '#2ecc71' }]}
+            onPress={() => navigation.navigate('UserInventory' as never)}
+          >
+            <Ionicons name="cube-outline" size={20} color="#ffffff" style={styles.actionIcon} />
+            <Text style={styles.actionButtonText}>My Inventory</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
