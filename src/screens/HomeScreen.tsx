@@ -125,25 +125,25 @@ const HomeScreen: React.FC = () => {
   };
 
   // Render item for grid view
-  const renderGridItem = ({ item }: { item: any }) => (
+  const renderGridItem = useCallback(({ item }: { item: any }) => (
     <ProductGridCard
       item={item}
       width={windowDimensions.width / numColumns - 16}
       colors={colors}
     />
-  );
+  ), [numColumns, windowDimensions.width, colors]);
 
   // Render item for list view
-  const renderListItem = ({ item }: { item: any }) => (
+  const renderListItem = useCallback(({ item }: { item: any }) => (
     <ProductListCard
       item={item}
       width={windowDimensions.width - 16}
       colors={colors}
     />
-  );
+  ), [windowDimensions.width, colors]);
 
   // Render footer with loading indicator or "end of list" message
-  const renderFooter = () => {
+  const renderFooter = useCallback(() => {
     if (isLoading) {
       return (
         <View className="py-4 flex-row justify-center">
@@ -155,25 +155,25 @@ const HomeScreen: React.FC = () => {
     if (!hasMoreItems) {
       return (
         <View className="py-4">
-          <Text className="text-center text-gray-500">End of list</Text>
+          <Text className="text-center text-gray-500">No More Products</Text>
         </View>
       );
     }
     
     return null;
-  };
+  }, [isLoading, hasMoreItems, colors.primary]);
 
   // Render horizontal scrolling categories
-  const renderHorizontalCategories = () => (
+  const renderHorizontalCategories = useCallback(() => (
     <View className="mb-6">
       {categories.map(category => (
         <View key={category.id} className="mb-4">
           <View className="flex-row justify-between items-center px-4 mb-2">
-            <Text className="text-lg font-bold" style={{ color: colors.text }}>
+            <Text className="text-lg font-bold text-gray-800 dark:text-gray-200">
               {category.title}
             </Text>
             <TouchableOpacity>
-              <Text style={{ color: colors.primary }}>See All</Text>
+              <Text className="text-blue-500">See All</Text>
             </TouchableOpacity>
           </View>
           <ScrollView
@@ -195,32 +195,23 @@ const HomeScreen: React.FC = () => {
         </View>
       ))}
     </View>
+  ), [horizontalItemWidth, isLandscape, colors]);
+
+  // Create a unique key for FlatList based on orientation and view mode
+  const flatListKey = useMemo(() => 
+    `${isLandscape ? 'landscape' : 'portrait'}-${viewMode}-${numColumns}`, 
+    [isLandscape, viewMode, numColumns]
   );
 
-  return (
-    <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      {/* Header with view toggle and user inventory button */}
-      <View className="flex-row justify-between items-center px-4 py-2">
-        <TouchableOpacity onPress={toggleViewMode}>
-          <Ionicons
-            name={viewMode === "grid" ? "list" : "grid"}
-            size={24}
-            color={colors.text}
-          />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold" style={{ color: colors.text }}>
-          Products
-        </Text>
-        <TouchableOpacity onPress={navigateToUserInventory}>
-          <Ionicons name="person" size={24} color={colors.text} />
-        </TouchableOpacity>
-      </View>
+  // Determine the number of columns based on view mode
+  const effectiveNumColumns = viewMode === "grid" ? numColumns : 1;
 
-      {/* User inventory banner */}
-      {products.length > 0 && (
+  // Render the user inventory banner
+  const renderUserInventoryBanner = useCallback(() => {
+    if (products.length > 0) {
+      return (
         <TouchableOpacity 
-          className="mx-4 mb-4 p-4 rounded-lg flex-row justify-between items-center"
-          style={{ backgroundColor: colors.primary }}
+          className="mx-4 mb-4 p-4 rounded-lg flex-row justify-between items-center bg-blue-500"
           onPress={navigateToUserInventory}
         >
           <View>
@@ -229,21 +220,71 @@ const HomeScreen: React.FC = () => {
           </View>
           <Ionicons name="chevron-forward" size={24} color="#fff" />
         </TouchableOpacity>
-      )}
+      );
+    }
+    return null;
+  }, [products.length, navigateToUserInventory]);
+
+  return (
+    <View className="flex-1 bg-white dark:bg-gray-900">
+      {/* Fixed Header */}
+      <View className="flex-row justify-between items-center px-4 py-2 border-b border-gray-200 bg-white dark:bg-gray-900 z-10">
+        <TouchableOpacity onPress={toggleViewMode}>
+          <Ionicons
+            name={viewMode === "grid" ? "list" : "grid"}
+            size={24}
+            color={colors.text}
+          />
+        </TouchableOpacity>
+        <Text className="text-xl font-bold text-gray-800 dark:text-gray-200">
+          Products
+        </Text>
+        <TouchableOpacity onPress={navigateToUserInventory}>
+          <Ionicons name="person" size={24} color={colors.text} />
+        </TouchableOpacity>
+      </View>
 
       {/* Main content */}
-      <FlatList
-        data={viewMode === "grid" ? currentItems : currentItems}
-        renderItem={viewMode === "grid" ? renderGridItem : renderListItem}
-        keyExtractor={item => item.id.toString()}
-        numColumns={viewMode === "grid" ? numColumns : 1}
-        key={viewMode} // Force re-render when view mode changes
-        contentContainerStyle={{ padding: 8 }}
-        onEndReached={loadMoreItems}
-        onEndReachedThreshold={0.5}
-        ListHeaderComponent={renderHorizontalCategories}
-        ListFooterComponent={renderFooter}
-      />
+      <View className="flex-1">
+        {/* User inventory banner as part of the scrollable content */}
+        {viewMode === "grid" ? (
+          <FlatList
+            key={`grid-${numColumns}`}
+            data={currentItems}
+            renderItem={renderGridItem}
+            keyExtractor={item => item.id.toString()}
+            numColumns={numColumns}
+            contentContainerStyle={{ padding: 8 }}
+            onEndReached={loadMoreItems}
+            onEndReachedThreshold={0.5}
+            ListHeaderComponent={
+              <>
+                {renderUserInventoryBanner()}
+                {renderHorizontalCategories()}
+              </>
+            }
+            ListFooterComponent={renderFooter}
+          />
+        ) : (
+          <FlatList
+            key="list"
+            data={currentItems}
+            renderItem={renderListItem}
+            keyExtractor={item => item.id.toString()}
+            numColumns={1}
+            contentContainerStyle={{ padding: 8 }}
+            onEndReached={loadMoreItems}
+            onEndReachedThreshold={0.5}
+            ListHeaderComponent={
+              <>
+                {renderUserInventoryBanner()}
+                {renderHorizontalCategories()}
+              </>
+            }
+            ListFooterComponent={renderFooter}
+          />
+        )}
+      </View>
     </View>
   );
 };

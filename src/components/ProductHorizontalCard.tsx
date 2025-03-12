@@ -33,60 +33,43 @@ const ProductHorizontalCard: React.FC<ProductHorizontalCardProps> = memo(({
 
   return (
     <TouchableOpacity 
-      className="flex-row items-center mr-4 rounded-lg border p-2.5"
+      className="flex-row items-center mr-4 rounded-lg border p-2.5 bg-white dark:bg-gray-800"
       style={{ 
         width,
         height,
-        backgroundColor: colors.card,
         borderColor: colors.border,
       }}
-      onPress={() => navigation.navigate('Chat', { item })}
+      onPress={() => navigation.navigate('ProductDetail', { product: item })}
     >
       <View 
-        className="justify-center items-center mr-2.5"
+        className="justify-center items-center mr-2.5 rounded-full"
         style={{ 
           backgroundColor: item.color,
           width: imageSize,
           height: imageSize,
-          borderRadius: imageSize / 2,
         }}
       >
         <Text 
-          className="font-bold text-white"
-          style={{
-            fontSize: isSmallPhonePortrait ? 24 : 32
-          }}
+          className={`font-bold text-white ${isSmallPhonePortrait ? 'text-2xl' : 'text-3xl'}`}
         >
           {item.title.charAt(0)}
         </Text>
       </View>
       <View className="flex-1 justify-between h-full py-1.5">
         <Text 
-          className="font-bold mb-1"
-          style={{
-            color: colors.text,
-            fontSize: isSmallPhonePortrait ? 14 : 16
-          }}
+          className={`font-bold mb-1 text-gray-800 dark:text-gray-200 ${isSmallPhonePortrait ? 'text-sm' : 'text-base'}`}
           numberOfLines={1}
         >
           {item.title}
         </Text>
         <Text 
-          className="mb-1"
-          style={{
-            color: colors.secondaryText,
-            fontSize: isSmallPhonePortrait ? 12 : 14
-          }}
+          className={`mb-1 text-gray-500 ${isSmallPhonePortrait ? 'text-xs' : 'text-sm'}`}
           numberOfLines={isLandscape ? 1 : 2}
         >
           {item.description}
         </Text>
         <Text 
-          className="font-bold"
-          style={{
-            color: colors.primary,
-            fontSize: isSmallPhonePortrait ? 14 : 16
-          }}
+          className={`font-bold text-blue-500 ${isSmallPhonePortrait ? 'text-sm' : 'text-base'}`}
         >
           {item.price}
         </Text>

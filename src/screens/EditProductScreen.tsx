@@ -5,7 +5,6 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -139,36 +138,36 @@ const EditProductScreen: React.FC = () => {
   };
 
   return (
-    <View style={[addProductStyles.container, { backgroundColor: colors.background }]}>
-      <View style={addProductStyles.header}>
+    <View className="flex-1 bg-white">
+      <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[addProductStyles.headerTitle, { color: colors.text }]}>Edit Product</Text>
+        <Text className="text-lg font-bold">Edit Product</Text>
         <TouchableOpacity 
-          style={[addProductStyles.submitButton, { opacity: isSubmitting ? 0.7 : 1 }]}
+          className={`px-3 py-1.5 ${isSubmitting ? 'opacity-70' : 'opacity-100'}`}
           onPress={handleSubmit}
           disabled={isSubmitting}
         >
-          <Text style={addProductStyles.submitButtonText}>Update</Text>
+          <Text className="text-green-500 font-bold">Update</Text>
         </TouchableOpacity>
       </View>
 
       {isSubmitting ? (
-        <View style={addProductStyles.loadingContainer}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[addProductStyles.loadingText, { color: colors.text }]}>Updating product...</Text>
+          <Text className="mt-4 text-base">Updating product...</Text>
         </View>
       ) : (
-        <ScrollView style={addProductStyles.scrollView}>
+        <ScrollView className="flex-1">
           {/* Images Section */}
-          <View style={addProductStyles.imagesSection}>
+          <View className="p-4 border-b border-gray-200">
             <TouchableOpacity 
-              style={[addProductStyles.addImageButton, { borderColor: colors.border }]}
+              className="h-24 border border-dashed border-gray-500 rounded-lg justify-center items-center"
               onPress={handleAddImage}
             >
               <Ionicons name="camera-outline" size={24} color={colors.secondaryText} />
-              <Text style={[addProductStyles.addImageText, { color: colors.secondaryText }]}>
+              <Text className="mt-2 text-gray-500">
                 {images.length > 0 ? 'Change photo' : 'Add photo'}
               </Text>
             </TouchableOpacity>
@@ -198,35 +197,28 @@ const EditProductScreen: React.FC = () => {
           />
 
           <SectionHeader title="Comes with" />
-          <View style={addProductStyles.comesWithContainer}>
-            <View style={addProductStyles.comesWithInputContainer}>
+          <View className="px-4 py-3 border-b border-gray-200">
+            <View className="flex-row items-center">
               <TextInput
-                style={[
-                  addProductStyles.comesWithInput,
-                  { 
-                    backgroundColor: colors.card,
-                    color: colors.text,
-                    borderColor: colors.border,
-                  }
-                ]}
+                className="flex-1 h-10 border border-gray-500 rounded-md px-3 mr-2"
                 value={comesWithText}
                 onChangeText={setComesWithText}
                 placeholder="Add item"
                 placeholderTextColor={colors.secondaryText}
               />
               <TouchableOpacity 
-                style={[addProductStyles.addComesWithButton, { backgroundColor: colors.primary }]}
+                className="px-3 py-2 bg-blue-500 rounded"
                 onPress={handleAddComesWithItem}
               >
-                <Text style={addProductStyles.addComesWithButtonText}>Add</Text>
+                <Text className="text-white font-bold">Add</Text>
               </TouchableOpacity>
             </View>
             
             {comesWith.length > 0 && (
-              <View style={addProductStyles.comesWithItemsContainer}>
+              <View className="flex-row flex-wrap mt-3">
                 {comesWith.map((item, index) => (
-                  <View key={index} style={[addProductStyles.comesWithItem, { backgroundColor: colors.card }]}>
-                    <Text style={[addProductStyles.comesWithItemText, { color: colors.text }]}>{item}</Text>
+                  <View key={index} className="flex-row items-center px-2 py-1 bg-gray-100 rounded-full mr-2 mb-2">
+                    <Text className="mr-1">{item}</Text>
                     <TouchableOpacity onPress={() => handleRemoveComesWithItem(index)}>
                       <Ionicons name="close-circle" size={18} color={colors.secondaryText} />
                     </TouchableOpacity>
@@ -323,14 +315,7 @@ const EditProductScreen: React.FC = () => {
 
           <SectionHeader title="Additional Notes" />
           <TextInput
-            style={[
-              addProductStyles.notesInput,
-              { 
-                backgroundColor: colors.card,
-                color: colors.text,
-                borderColor: colors.border,
-              }
-            ]}
+            className="h-30 border border-gray-500 rounded-md p-3 m-4 text-base"
             value={additionalNotes}
             onChangeText={setAdditionalNotes}
             placeholder="Type additional notes here"
@@ -339,7 +324,7 @@ const EditProductScreen: React.FC = () => {
             textAlignVertical="top"
           />
 
-          <View style={addProductStyles.bottomPadding} />
+          <View className="h-10" />
         </ScrollView>
       )}
     </View>

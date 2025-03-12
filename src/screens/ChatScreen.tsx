@@ -1,114 +1,89 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   FlatList,
+  StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
-  useWindowDimensions,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { useTheme } from '../context/ThemeContext';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { Product } from '../context/ProductsContext';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
+type ChatRouteProp = RouteProp<{ Chat: { item: Product } }, 'Chat'>;
 
-type Message = {
+interface Message {
   id: string;
   text: string;
-  isUser: boolean;
+  senderId: string;
   timestamp: Date;
-};
+}
 
 const ChatScreen: React.FC = () => {
   const { colors } = useTheme();
-  const navigation = useNavigation();
-  const route = useRoute<ChatScreenRouteProp>();
+  const { user } = useAuth();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const route = useRoute<ChatRouteProp>();
   const { item } = route.params;
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: `Hello! How can I help you with the ${item.title}?`,
-      isUser: false,
-      timestamp: new Date(),
-    },
-  ]);
-  const flatListRef = useRef<FlatList>(null);
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  const sendMessage = () => {
-    if (message.trim() === '') return;
+  const handleSend = () => {
+    if (!message.trim() || !user) return;
 
-    // Add user message
-    const userMessage: Message = {
+    const newMessage: Message = {
       id: Date.now().toString(),
-      text: message,
-      isUser: true,
+      text: message.trim(),
+      senderId: user.id,
       timestamp: new Date(),
     };
 
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setMessages(prev => [...prev, newMessage]);
     setMessage('');
-
-    // Simulate response after a short delay
-    setTimeout(() => {
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: `Thank you for your message about the ${item.title}. Our team will get back to you shortly.`,
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-    }, 1000);
   };
 
-  const renderMessage = ({ item: message }: { item: Message }) => (
-    <View
-      style={[
-        styles.messageBubble,
-        message.isUser
-          ? [styles.userMessage, { backgroundColor: colors.primary }]
-          : [styles.botMessage, { backgroundColor: colors.card, borderColor: colors.border }],
-      ]}
-    >
-      <Text
-        style={[
+  const renderMessage = ({ item: messageItem }: { item: Message }) => {
+    const isOwnMessage = messageItem.senderId === user?.id;
+
+    return (
+      <View style={[
+        styles.messageContainer,
+        isOwnMessage ? styles.ownMessage : styles.otherMessage
+      ]}>
+        <Text style={[
           styles.messageText,
-          { color: message.isUser ? '#ffffff' : colors.text },
-        ]}
-      >
-        {message.text}
-      </Text>
-      <Text
-        style={[
+          { color: isOwnMessage ? '#fff' : colors.text }
+        ]}>
+          {messageItem.text}
+        </Text>
+        <Text style={[
           styles.timestamp,
-          { color: message.isUser ? 'rgba(255,255,255,0.7)' : colors.secondaryText },
-        ]}
-      >
-        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </Text>
-    </View>
-  );
+          { color: isOwnMessage ? '#fff' : colors.secondaryText }
+        ]}>
+          {messageItem.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </Text>
+      </View>
+    );
+  };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+    <KeyboardAvoidingView 
+      style={[styles.container, { backgroundColor: colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>{item.title}</Text>
+        <View style={styles.headerInfo}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Chat about {item.title}</Text>
           <Text style={[styles.headerSubtitle, { color: colors.secondaryText }]}>
             {item.price}
           </Text>
@@ -116,38 +91,37 @@ const ChatScreen: React.FC = () => {
       </View>
 
       <FlatList
-        ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messageList}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.messagesList}
       />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? (isLandscape ? 45 : 90) : 0}
-      >
-        <View style={[styles.inputContainer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-            placeholder="Type a message..."
-            placeholderTextColor={colors.secondaryText}
-            value={message}
-            onChangeText={setMessage}
-            multiline
-          />
-          <TouchableOpacity
-            style={[styles.sendButton, { backgroundColor: colors.primary }]}
-            onPress={sendMessage}
-            disabled={message.trim() === ''}
-          >
-            <Ionicons name="send" size={20} color="#ffffff" />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      <View style={[styles.inputContainer, { borderTopColor: colors.border }]}>
+        <TextInput
+          style={[
+            styles.input,
+            { 
+              backgroundColor: colors.card,
+              color: colors.text,
+              borderColor: colors.border
+            }
+          ]}
+          value={message}
+          onChangeText={setMessage}
+          placeholder="Type a message..."
+          placeholderTextColor={colors.secondaryText}
+          multiline
+        />
+        <TouchableOpacity
+          style={[styles.sendButton, { backgroundColor: colors.primary }]}
+          onPress={handleSend}
+          disabled={!message.trim()}
+        >
+          <Ionicons name="send" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -158,13 +132,11 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    padding: 16,
     borderBottomWidth: 1,
   },
-  backButton: {
-    marginRight: 10,
-  },
-  headerContent: {
+  headerInfo: {
+    marginLeft: 12,
     flex: 1,
   },
   headerTitle: {
@@ -173,48 +145,47 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 14,
+    marginTop: 2,
   },
-  messageList: {
-    padding: 15,
-    paddingBottom: 20,
+  messagesList: {
+    padding: 16,
   },
-  messageBubble: {
+  messageContainer: {
     maxWidth: '80%',
     padding: 12,
-    borderRadius: 18,
-    marginBottom: 10,
+    borderRadius: 16,
+    marginBottom: 8,
   },
-  userMessage: {
+  ownMessage: {
     alignSelf: 'flex-end',
-    borderBottomRightRadius: 5,
+    backgroundColor: '#3498db',
   },
-  botMessage: {
+  otherMessage: {
     alignSelf: 'flex-start',
-    borderBottomLeftRadius: 5,
-    borderWidth: 1,
+    backgroundColor: '#f0f0f0',
   },
   messageText: {
     fontSize: 16,
   },
   timestamp: {
     fontSize: 12,
-    marginTop: 5,
+    marginTop: 4,
     alignSelf: 'flex-end',
   },
   inputContainer: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 16,
     borderTopWidth: 1,
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   input: {
     flex: 1,
+    marginRight: 12,
+    padding: 12,
     borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginRight: 10,
     borderWidth: 1,
     maxHeight: 100,
+    minHeight: 40,
   },
   sendButton: {
     width: 40,

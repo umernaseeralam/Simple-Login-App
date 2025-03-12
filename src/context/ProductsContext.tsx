@@ -8,6 +8,7 @@ export interface Product {
   description: string;
   color: string;
   price: string;
+  ownerId: string;
   brand?: string;
   comesWith?: string[];
   watchInfo?: {
@@ -47,6 +48,7 @@ const defaultProductsData: Product[] = [
     description: "Bluetooth 5.0 with noise cancellation",
     color: "#3498db",
     price: "$49.99",
+    ownerId: "",
   },
   {
     id: 2,
@@ -54,6 +56,7 @@ const defaultProductsData: Product[] = [
     description: "Fitness tracker with heart rate monitor",
     color: "#2ecc71",
     price: "$89.99",
+    ownerId: "",
   },
   // Add more default products as needed
 ];

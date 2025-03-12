@@ -11,6 +11,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { Product } from '../context/ProductsContext';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
@@ -42,9 +43,12 @@ const DetailItem: React.FC<{ label: string; value: string | undefined | null }> 
 
 const ProductDetailScreen: React.FC = () => {
   const { colors } = useTheme();
+  const { user } = useAuth();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<ProductDetailRouteProp>();
   const { product } = route.params;
+
+  const isOwner = user?.id === product.ownerId;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -53,9 +57,15 @@ const ProductDetailScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Product Details</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('EditProduct', { product })}>
-          <Ionicons name="create-outline" size={24} color={colors.primary} />
-        </TouchableOpacity>
+        {isOwner ? (
+          <TouchableOpacity onPress={() => navigation.navigate('EditProduct', { product })}>
+            <Ionicons name="create-outline" size={24} color={colors.primary} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={() => navigation.navigate('Chat', { item: product })}>
+            <Ionicons name="chatbubble-outline" size={24} color={colors.primary} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView style={styles.scrollView}>

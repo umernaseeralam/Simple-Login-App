@@ -13,6 +13,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
 import { useProducts } from '../context/ProductsContext';
+import { useAuth } from '../context/AuthContext';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import ProductGridCard from '../components/ProductGridCard';
 
@@ -20,9 +21,17 @@ const UserInventoryScreen: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { products, deleteProduct } = useProducts();
+  const { user, isLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [numColumns, setNumColumns] = useState(2);
   const [itemWidth, setItemWidth] = useState(0);
+
+  // Check if user is logged in when screen is focused
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigation.navigate('Auth');
+    }
+  }, [isLoggedIn, navigation]);
 
   // Calculate item width based on screen size and number of columns
   useEffect(() => {
@@ -32,6 +41,10 @@ const UserInventoryScreen: React.FC = () => {
   }, [numColumns]);
 
   const handleAddProduct = () => {
+    if (!isLoggedIn) {
+      navigation.navigate('Auth');
+      return;
+    }
     navigation.navigate('AddProduct');
   };
 
@@ -107,6 +120,10 @@ const UserInventoryScreen: React.FC = () => {
       </View>
     </View>
   );
+
+  if (!isLoggedIn) {
+    return null; // Will redirect to Auth screen
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

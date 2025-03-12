@@ -8,6 +8,7 @@ export const itemsData: Product[] = [
     description: "Bluetooth 5.0 with noise cancellation",
     color: "#3498db",
     price: "$49.99",
+    ownerId: "",
   },
   {
     id: 2,
@@ -15,6 +16,7 @@ export const itemsData: Product[] = [
     description: "Fitness tracker with heart rate monitor",
     color: "#2ecc71",
     price: "$89.99",
+    ownerId: "",
   },
   {
     id: 3,
@@ -22,6 +24,7 @@ export const itemsData: Product[] = [
     description: "10000mAh power bank for all devices",
     color: "#e74c3c",
     price: "$29.99",
+    ownerId: "",
   },
   {
     id: 4,
@@ -29,6 +32,7 @@ export const itemsData: Product[] = [
     description: 'Waterproof protective case for 15" laptops',
     color: "#f39c12",
     price: "$19.99",
+    ownerId: "",
   },
   {
     id: 5,
@@ -36,6 +40,7 @@ export const itemsData: Product[] = [
     description: "Waterproof with 12-hour battery life",
     color: "#9b59b6",
     price: "$39.99",
+    ownerId: "",
   },
   {
     id: 6,
@@ -43,6 +48,7 @@ export const itemsData: Product[] = [
     description: "Adjustable desk holder for smartphones",
     color: "#1abc9c",
     price: "$12.99",
+    ownerId: "",
   },
   {
     id: 7,
@@ -50,6 +56,7 @@ export const itemsData: Product[] = [
     description: "Ergonomic design with silent clicks",
     color: "#d35400",
     price: "$24.99",
+    ownerId: "",
   },
   {
     id: 8,
@@ -57,6 +64,7 @@ export const itemsData: Product[] = [
     description: "Silicone protector for MacBook keyboards",
     color: "#34495e",
     price: "$14.99",
+    ownerId: "",
   },
   {
     id: 9,
@@ -64,6 +72,7 @@ export const itemsData: Product[] = [
     description: "7-in-1 adapter with HDMI and card readers",
     color: "#16a085",
     price: "$35.99",
+    ownerId: "",
   },
   {
     id: 10,
@@ -71,6 +80,7 @@ export const itemsData: Product[] = [
     description: "LED with adjustable brightness and color",
     color: "#27ae60",
     price: "$32.99",
+    ownerId: "",
   },
   {
     id: 11,
@@ -78,6 +88,7 @@ export const itemsData: Product[] = [
     description: "Privacy slider for laptop cameras",
     color: "#c0392b",
     price: "$7.99",
+    ownerId: "",
   },
   {
     id: 12,
@@ -85,6 +96,7 @@ export const itemsData: Product[] = [
     description: "Silicone clips for desk cable management",
     color: "#f1c40f",
     price: "$9.99",
+    ownerId: "",
   },
   {
     id: 13,
@@ -92,6 +104,7 @@ export const itemsData: Product[] = [
     description: "Fast charging pad for Qi-enabled devices",
     color: "#8e44ad",
     price: "$22.99",
+    ownerId: "",
   },
   {
     id: 14,
@@ -99,6 +112,7 @@ export const itemsData: Product[] = [
     description: "Microfiber cloth with cleaning spray",
     color: "#2980b9",
     price: "$11.99",
+    ownerId: "",
   },
   {
     id: 15,
@@ -106,6 +120,7 @@ export const itemsData: Product[] = [
     description: "Expandable stand and grip for smartphones",
     color: "#e67e22",
     price: "$8.99",
+    ownerId: "",
   },
   {
     id: 16,
@@ -113,6 +128,7 @@ export const itemsData: Product[] = [
     description: "Adjustable angle holder for iPads and tablets",
     color: "#7f8c8d",
     price: "$18.99",
+    ownerId: "",
   },
   {
     id: 17,
@@ -120,6 +136,7 @@ export const itemsData: Product[] = [
     description: "Over-ear design with 20hr battery life",
     color: "#2c3e50",
     price: "$129.99",
+    ownerId: "",
   },
   {
     id: 18,
@@ -127,6 +144,7 @@ export const itemsData: Product[] = [
     description: "RGB backlit with tactile switches",
     color: "#3498db",
     price: "$79.99",
+    ownerId: "",
   },
   {
     id: 19,
@@ -134,6 +152,7 @@ export const itemsData: Product[] = [
     description: "Dual fan design with height adjustment",
     color: "#2ecc71",
     price: "$25.99",
+    ownerId: "",
   },
   {
     id: 20,
@@ -141,6 +160,7 @@ export const itemsData: Product[] = [
     description: "3-axis stabilizer for smooth video recording",
     color: "#e74c3c",
     price: "$69.99",
+    ownerId: "",
   },
   {
     id: 21,
@@ -148,6 +168,7 @@ export const itemsData: Product[] = [
     description: "Multi-compartment storage for office supplies",
     color: "#f39c12",
     price: "$15.99",
+    ownerId: "",
   },
   {
     id: 22,
@@ -155,6 +176,7 @@ export const itemsData: Product[] = [
     description: "Slim design with multi-device connectivity",
     color: "#9b59b6",
     price: "$45.99",
+    ownerId: "",
   },
   {
     id: 23,
@@ -162,6 +184,7 @@ export const itemsData: Product[] = [
     description: "Height adjustable with cable management",
     color: "#1abc9c",
     price: "$32.99",
+    ownerId: "",
   },
   {
     id: 24,
@@ -169,6 +192,7 @@ export const itemsData: Product[] = [
     description: "Winter gloves compatible with smartphones",
     color: "#d35400",
     price: "$14.99",
+    ownerId: "",
   },
   {
     id: 25,
@@ -176,6 +200,7 @@ export const itemsData: Product[] = [
     description: 'Anti-spy filter for 15.6" displays',
     color: "#34495e",
     price: "$29.99",
+    ownerId: "",
   },
   {
     id: 26,
@@ -183,6 +208,7 @@ export const itemsData: Product[] = [
     description: "WiFi-enabled RGB light with app control",
     color: "#16a085",
     price: "$19.99",
+    ownerId: "",
   },
   {
     id: 27,
@@ -190,6 +216,7 @@ export const itemsData: Product[] = [
     description: "Laser pointer with slide controls",
     color: "#27ae60",
     price: "$24.99",
+    ownerId: "",
   },
   {
     id: 28,
@@ -197,6 +224,7 @@ export const itemsData: Product[] = [
     description: "Large mousepad with microfiber surface",
     color: "#c0392b",
     price: "$17.99",
+    ownerId: "",
   },
   {
     id: 29,
@@ -204,6 +232,7 @@ export const itemsData: Product[] = [
     description: "UV light cleaner for smartphones",
     color: "#f1c40f",
     price: "$39.99",
+    ownerId: "",
   },
   {
     id: 30,
@@ -211,5 +240,6 @@ export const itemsData: Product[] = [
     description: "Ring light for video calls and streaming",
     color: "#8e44ad",
     price: "$28.99",
+    ownerId: "",
   },
 ]; 
