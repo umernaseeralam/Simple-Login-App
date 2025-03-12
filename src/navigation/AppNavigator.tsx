@@ -26,6 +26,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Product } from '../context/ProductsContext';
 import Layout from '../components/Layout';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 
 // Define the item type for chat
 type Item = {
@@ -54,6 +55,7 @@ export type RootStackParamList = {
   AddProduct: undefined;
   EditProduct: { product: Product };
   ProductDetail: { product: Product };
+  ForgotPassword: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -102,6 +104,7 @@ const AuthNavigator = () => {
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="SignUp" component={SignUpScreen} />
+      <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </AuthStack.Navigator>
   );
 };
@@ -284,6 +287,7 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen name="EditProduct" component={EditProductScreen} />
         <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

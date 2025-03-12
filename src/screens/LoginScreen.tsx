@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, useWindowDimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, useWindowDimensions, ImageBackground, Image } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
@@ -16,12 +16,16 @@ type RootStackParamList = {
   EditProfile: undefined;
   Auth: undefined;
   ProfileTab: undefined;
+  ForgotPassword: undefined;
 };
 
 const LoginScreen: React.FC = () => {
+  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -44,11 +48,24 @@ const LoginScreen: React.FC = () => {
     return true;
   };
 
+  const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    if (!phone) {
+      setPhoneError('Phone number is required');
+      return false;
+    } else if (!phoneRegex.test(phone)) {
+      setPhoneError('Please enter a valid phone number');
+      return false;
+    }
+    setPhoneError('');
+    return true;
+  };
+
   const validatePassword = (password: string) => {
-    if (!password) {
+    if (!password && loginMethod === 'email') {
       setPasswordError('Password is required');
       return false;
-    } else if (password.length < 6) {
+    } else if (password.length < 6 && loginMethod === 'email') {
       setPasswordError('Password must be at least 6 characters');
       return false;
     }
@@ -56,18 +73,32 @@ const LoginScreen: React.FC = () => {
     return true;
   };
 
-  const handleLogin = async () => {
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
+  const formatPhoneNumber = (text: string) => {
+    // Remove all non-numeric characters
+    const cleaned = text.replace(/\D/g, '');
+    // Format as international phone number
+    if (cleaned.length > 0) {
+      return '+' + cleaned;
+    }
+    return cleaned;
+  };
 
-    if (isEmailValid && isPasswordValid) {
+  const handleLogin = async () => {
+    let isValid = false;
+    
+    if (loginMethod === 'email') {
+      isValid = validateEmail(email) && validatePassword(password);
+    } else {
+      isValid = validatePhoneNumber(phoneNumber);
+    }
+
+    if (isValid) {
       setIsLoading(true);
       try {
-        const success = await login(email, password);
+        const success = await login(loginMethod === 'email' ? email : phoneNumber, loginMethod === 'email' ? password : '');
         if (!success) {
-          Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
+          Alert.alert('Login Failed', `Invalid ${loginMethod}${loginMethod === 'email' ? ' or password' : ''}. Please try again.`);
         } else {
-          // Reset navigation state and navigate to Main
           navigation.dispatch(
             CommonActions.reset({
               index: 0,
@@ -85,169 +116,151 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? (isLandscape ? 30 : 64) : 0}
+    <ImageBackground
+      source={require('../../assets/BackgroundMan.jpeg')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.logoContainer}>
-          <Text style={[styles.logoText, { color: colors.primary }]}>MyApp</Text>
-        </View>
-
-        <View style={[styles.formContainer, { backgroundColor: colors.card, shadowColor: colors.text }]}>
-          <Text style={[styles.title, { color: colors.text }]}>Login</Text>
-          
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>Email</Text>
-            <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
-              <Ionicons name="mail-outline" size={20} color={colors.secondaryText} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { color: colors.text }]}
-                placeholder="Enter your email"
-                placeholderTextColor={colors.secondaryText}
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (emailError) validateEmail(text);
-                }}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                editable={!isLoading}
-              />
-            </View>
-            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>Password</Text>
-            <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={colors.secondaryText} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { color: colors.text }]}
-                placeholder="Enter your password"
-                placeholderTextColor={colors.secondaryText}
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  if (passwordError) validatePassword(text);
-                }}
-                secureTextEntry
-                editable={!isLoading}
-              />
-            </View>
-            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-          </View>
-
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? (isLandscape ? 30 : 64) : 0}
+      >
+        <ScrollView className="flex-1 px-5">
           <TouchableOpacity 
-            style={[styles.loginButton, isLoading && styles.disabledButton]} 
-            onPress={handleLogin}
-            disabled={isLoading}
+            className="mt-12 mb-4 flex-row items-center"
+            onPress={() => navigation.goBack()}
           >
-            <Text style={styles.loginButtonText}>{isLoading ? 'Logging in...' : 'Login'}</Text>
+            <Ionicons name="arrow-back-outline" size={24} color="#fff" />
+            <Text className="ml-2 text-white text-base font-medium">Back</Text>
           </TouchableOpacity>
 
-          <View style={styles.signupContainer}>
-            <Text style={[styles.signupText, { color: colors.secondaryText }]}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('SignUp' as never)} disabled={isLoading}>
-              <Text style={[styles.signupLink, { color: colors.primary }]}>Sign Up</Text>
-            </TouchableOpacity>
+          <View className="flex-1 justify-end" style={{ minHeight: height * 0.9 }}>
+            <View className="items-center mb-8">
+              <Text className="text-3xl font-bold text-white">Brickell Watches</Text>
+            </View>
+
+            <View className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 shadow-md backdrop-blur-sm mb-5">
+              <Text className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">Login</Text>
+
+              <View className="flex-row mb-6">
+                <TouchableOpacity
+                  className={`flex-1 py-3 items-center rounded-lg border mx-1 ${
+                    loginMethod === 'email' ? 'bg-blue-50 dark:bg-blue-900 border-primary' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                  onPress={() => setLoginMethod('email')}
+                >
+                  <Text className={`text-sm font-medium ${
+                    loginMethod === 'email' ? 'text-primary dark:text-white font-bold' : 'text-gray-500 dark:text-gray-400'
+                  }`}>Email</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className={`flex-1 py-3 items-center rounded-lg border mx-1 ${
+                    loginMethod === 'phone' ? 'bg-blue-50 dark:bg-blue-900 border-primary' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                  onPress={() => setLoginMethod('phone')}
+                >
+                  <Text className={`text-sm font-medium ${
+                    loginMethod === 'phone' ? 'text-primary dark:text-white font-bold' : 'text-gray-500 dark:text-gray-400'
+                  }`}>Phone</Text>
+                </TouchableOpacity>
+              </View>
+              
+              {loginMethod === 'email' ? (
+                <View className="mb-4">
+                  <Text className="text-base mb-1 text-gray-700 dark:text-gray-300">Email</Text>
+                  <View className="flex-row items-center border rounded-lg px-3 border-gray-300 dark:border-gray-600">
+                    <Ionicons name="mail-outline" size={20} color={colors.secondaryText} className="mr-2" />
+                    <TextInput
+                      className="flex-1 py-3 text-base text-gray-800 dark:text-white"
+                      placeholder="Enter your email"
+                      placeholderTextColor={colors.secondaryText}
+                      value={email}
+                      onChangeText={(text) => {
+                        setEmail(text);
+                        if (emailError) validateEmail(text);
+                      }}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      editable={!isLoading}
+                    />
+                  </View>
+                  {emailError ? <Text className="text-red-500 text-sm mt-1">{emailError}</Text> : null}
+                </View>
+              ) : (
+                <View className="mb-4">
+                  <Text className="text-base mb-1 text-gray-700 dark:text-gray-300">Phone Number</Text>
+                  <View className="flex-row items-center border rounded-lg px-3 border-gray-300 dark:border-gray-600">
+                    <Ionicons name="phone-portrait-outline" size={20} color={colors.secondaryText} className="mr-2" />
+                    <TextInput
+                      className="flex-1 py-3 text-base text-gray-800 dark:text-white"
+                      placeholder="Enter your phone number"
+                      placeholderTextColor={colors.secondaryText}
+                      value={phoneNumber}
+                      onChangeText={(text) => {
+                        const formattedNumber = formatPhoneNumber(text);
+                        setPhoneNumber(formattedNumber);
+                        if (phoneError) validatePhoneNumber(formattedNumber);
+                      }}
+                      keyboardType="phone-pad"
+                      editable={!isLoading}
+                    />
+                  </View>
+                  {phoneError ? <Text className="text-red-500 text-sm mt-1">{phoneError}</Text> : null}
+                </View>
+              )}
+
+              {loginMethod === 'email' && (
+                <View className="mb-4">
+                  <View className="flex-row justify-between items-center mb-1">
+                    <Text className="text-base text-gray-700 dark:text-gray-300">Password</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword' as never)}>
+                      <Text className="text-sm text-primary dark:text-blue-400">Forgot Password?</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View className="flex-row items-center border rounded-lg px-3 border-gray-300 dark:border-gray-600">
+                    <Ionicons name="lock-closed-outline" size={20} color={colors.secondaryText} className="mr-2" />
+                    <TextInput
+                      className="flex-1 py-3 text-base text-gray-800 dark:text-white"
+                      placeholder="Enter your password"
+                      placeholderTextColor={colors.secondaryText}
+                      value={password}
+                      onChangeText={(text) => {
+                        setPassword(text);
+                        if (passwordError) validatePassword(text);
+                      }}
+                      secureTextEntry
+                      editable={!isLoading}
+                    />
+                  </View>
+                  {passwordError ? <Text className="text-red-500 text-sm mt-1">{passwordError}</Text> : null}
+                </View>
+              )}
+
+              <TouchableOpacity 
+                className={`py-3 rounded-lg items-center mt-2 ${
+                  isLoading ? 'bg-emerald-300' : 'bg-emerald-500'
+                }`}
+                onPress={handleLogin}
+                disabled={isLoading}
+              >
+                <Text className="text-white text-base font-bold">
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </Text>
+              </TouchableOpacity>
+
+              <View className="flex-row justify-center mt-6">
+                <Text className="text-sm text-gray-500 dark:text-gray-400">Don't have an account? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('SignUp' as never)} disabled={isLoading}>
+                  <Text className="text-sm text-primary dark:text-blue-400 font-bold">Sign Up</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-  formContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  inputContainer: {
-    marginBottom: 15,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  errorText: {
-    color: '#e74c3c',
-    fontSize: 14,
-    marginTop: 5,
-  },
-  loginButton: {
-    backgroundColor: '#3498db',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  disabledButton: {
-    backgroundColor: '#95c8eb',
-  },
-  loginButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  signupText: {
-    fontSize: 14,
-  },
-  signupLink: {
-    fontSize: 14,
-    color: '#3498db',
-    fontWeight: 'bold',
-  },
-});
 
 export default LoginScreen; 
