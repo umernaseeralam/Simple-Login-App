@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Modal,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -14,6 +15,8 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Product } from '../context/ProductsContext';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import MakeOfferModal from '../components/MakeOfferModal';
+import BuyNowModal from '../components/BuyNowModal';
 
 type ProductDetailRouteProp = RouteProp<{ ProductDetail: { product: Product } }, 'ProductDetail'>;
 
@@ -34,7 +37,7 @@ const DetailItem: React.FC<{ label: string; value: string | undefined | null }> 
   if (!value) return null;
   
   return (
-    <View style={styles.detailItem}>
+    <View className='border-b border-gray-200' style={[styles.detailItem]}>
       <Text style={[styles.detailLabel, { color: colors.secondaryText }]}>{label}:</Text>
       <Text style={[styles.detailValue, { color: colors.text }]}>{value}</Text>
     </View>
@@ -47,6 +50,9 @@ const ProductDetailScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<ProductDetailRouteProp>();
   const { product } = route.params;
+  
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
   const isOwner = user?.id === product.ownerId;
 
@@ -79,8 +85,20 @@ const ProductDetailScreen: React.FC = () => {
         </View>
 
         {/* Basic Info */}
-        <View style={styles.basicInfo}>
+        <View style={[styles.basicInfo, { borderBottomColor: '#e5e7eb' }]}>
           <Text style={[styles.productTitle, { color: colors.text }]}>{product.title}</Text>
+          
+          {/* Comes With - Directly under title as pill buttons only */}
+          {product.comesWith && product.comesWith.length > 0 && (
+            <View style={styles.comesWithRow}>
+              {product.comesWith.map((item, index) => (
+                <View key={index} style={[styles.comesWithItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Text style={[styles.comesWithText, { color: colors.text }]}>{item}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+          
           <Text style={[styles.productPrice, { color: colors.primary }]}>{product.price}</Text>
           {product.description && (
             <Text style={[styles.productDescription, { color: colors.secondaryText }]}>
@@ -89,41 +107,42 @@ const ProductDetailScreen: React.FC = () => {
           )}
         </View>
 
-        {/* Brand */}
-        {product.brand && (
-          <DetailSection title="Brand">
-            <Text style={[styles.brandText, { color: colors.text }]}>{product.brand}</Text>
-          </DetailSection>
+        {/* Action Buttons */}
+        {!isOwner && (
+          <View style={[styles.actionButtonsContainer, { borderBottomColor: '#e5e7eb' }]}>
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.offerButton, { borderColor: colors.primary }]} 
+              onPress={() => setShowOfferModal(true)}
+            >
+              <Text style={[styles.actionButtonText, { color: colors.primary }]}>Make Offer</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.buyButton, { backgroundColor: colors.primary }]} 
+              onPress={() => setShowBuyModal(true)}
+            >
+              <Text style={[styles.actionButtonText, { color: 'white' }]}>Buy Now</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
-        {/* Comes With */}
-        {product.comesWith && product.comesWith.length > 0 && (
-          <DetailSection title="Comes With">
-            <View style={styles.comesWithContainer}>
-              {product.comesWith.map((item, index) => (
-                <View key={index} style={[styles.comesWithItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  <Text style={[styles.comesWithText, { color: colors.text }]}>{item}</Text>
-                </View>
-              ))}
-            </View>
-          </DetailSection>
-        )}
-
-        {/* Watch Info */}
-        {product.watchInfo && (
-          <DetailSection title="Watch Information">
-            <DetailItem label="Model" value={product.watchInfo.model} />
-            <DetailItem label="Reference" value={product.watchInfo.ref} />
-            <DetailItem label="Serial" value={product.watchInfo.serial} />
-            <DetailItem label="Year" value={product.watchInfo.year} />
-            <DetailItem label="Time Score" value={product.watchInfo.timeScore} />
-          </DetailSection>
-        )}
-
-        {/* Condition */}
-        {(product.condition || product.polish || product.crystal || 
+        {/* Combined Watch Info and Condition */}
+        {(product.watchInfo || product.condition || product.polish || product.crystal || 
           product.dial || product.bezel || product.movement || product.bracelet) && (
-          <DetailSection title="Condition">
+          <DetailSection title="Product Details">
+            {/* Watch Info */}
+            {product.watchInfo && (
+              <>
+                <DetailItem label="Brand" value={product.brand} />
+                <DetailItem label="Model" value={product.watchInfo.model} />
+                <DetailItem label="Reference" value={product.watchInfo.ref} />
+                <DetailItem label="Serial" value={product.watchInfo.serial} />
+                <DetailItem label="Year" value={product.watchInfo.year} />
+                <DetailItem label="Time Score" value={product.watchInfo.timeScore} />
+              </>
+            )}
+            
+            {/* Condition */}
             <DetailItem label="Overall Condition" value={product.condition} />
             <DetailItem label="Polish" value={product.polish} />
             <DetailItem label="Crystal" value={product.crystal} />
@@ -143,6 +162,19 @@ const ProductDetailScreen: React.FC = () => {
 
         <View style={styles.bottomPadding} />
       </ScrollView>
+
+      {/* Modals */}
+      <MakeOfferModal 
+        visible={showOfferModal}
+        onClose={() => setShowOfferModal(false)}
+        product={product}
+      />
+
+      <BuyNowModal
+        visible={showBuyModal}
+        onClose={() => setShowBuyModal(false)}
+        product={product}
+      />
     </View>
   );
 };
@@ -184,12 +216,17 @@ const styles = StyleSheet.create({
   basicInfo: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#e5e7eb',
   },
   productTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  comesWithRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 12,
   },
   productPrice: {
     fontSize: 20,
@@ -200,10 +237,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  actionButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 8,
+  },
+  offerButton: {
+    borderWidth: 1,
+  },
+  buyButton: {
+    borderWidth: 0,
+  },
+  actionButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   section: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#e5e7eb',
   },
   sectionTitle: {
     fontSize: 18,
@@ -216,6 +277,9 @@ const styles = StyleSheet.create({
   detailItem: {
     flexDirection: 'row',
     marginBottom: 8,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   detailLabel: {
     fontSize: 16,
@@ -228,10 +292,6 @@ const styles = StyleSheet.create({
   },
   brandText: {
     fontSize: 16,
-  },
-  comesWithContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
   },
   comesWithItem: {
     paddingHorizontal: 12,
@@ -253,4 +313,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductDetailScreen; 
+export default ProductDetailScreen;
