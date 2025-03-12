@@ -18,8 +18,13 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import SearchScreen from '../screens/SearchScreen';
 import ExampleScreen from '../screens/ExampleScreen';
+import UserInventoryScreen from '../screens/UserInventoryScreen';
+import AddProductScreen from '../screens/AddProductScreen';
+import EditProductScreen from '../screens/EditProductScreen';
+import ProductDetailScreen from '../screens/ProductDetailScreen';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { Product } from '../context/ProductsContext';
 import Layout from '../components/Layout';
 
 // Define the item type for chat
@@ -45,6 +50,10 @@ export type RootStackParamList = {
   Chat: { item: Item };
   Search: { products: Item[] };
   Example: undefined;
+  UserInventory: undefined;
+  AddProduct: undefined;
+  EditProduct: { product: Product };
+  ProductDetail: { product: Product };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -161,6 +170,13 @@ const HomeTabNavigator = () => {
           </Layout>
         )}
       </Tab.Screen>
+      <Tab.Screen name="UserInventory">
+        {() => (
+          <Layout>
+            <UserInventoryScreen />
+          </Layout>
+        )}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };
@@ -263,38 +279,11 @@ const AppNavigator: React.FC = () => {
         }}
       >
         <Stack.Screen name="Main" component={MainNavigator} />
-        <Stack.Screen 
-          name="Auth" 
-          component={AuthNavigator} 
-          options={{
-            presentation: 'modal',
-            cardStyleInterpolator: CardStyleInterpolators.forModalPresentationIOS,
-            transitionSpec: {
-              open: {
-                animation: 'spring',
-                config: {
-                  stiffness: 1000,
-                  damping: 500,
-                  mass: 3,
-                  overshootClamping: true,
-                  restDisplacementThreshold: 0.01,
-                  restSpeedThreshold: 0.01,
-                },
-              },
-              close: {
-                animation: 'spring',
-                config: {
-                  stiffness: 1000,
-                  damping: 500,
-                  mass: 3,
-                  overshootClamping: false,
-                  restDisplacementThreshold: 0.01,
-                  restSpeedThreshold: 0.01,
-                },
-              },
-            }
-          }}
-        />
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+        <Stack.Screen name="AddProduct" component={AddProductScreen} />
+        <Stack.Screen name="EditProduct" component={EditProductScreen} />
+        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -23,13 +23,12 @@ const ProductListCard: React.FC<ProductListCardProps> = memo(({ item, width, col
 
   return (
     <TouchableOpacity
-      className="m-1.5 rounded-lg border overflow-hidden flex-row"
+      className="m-1.5 rounded-lg border overflow-hidden flex-row bg-white dark:bg-gray-800"
       style={{
         width: width - 15, // Adjust for margins
-        backgroundColor: colors.card,
         borderColor: colors.border,
       }}
-      onPress={() => navigation.navigate('Chat', { item })}
+      onPress={() => navigation.navigate('ProductDetail', { product: item })}
     >
       <View
         className="justify-center items-center"
@@ -44,15 +43,13 @@ const ProductListCard: React.FC<ProductListCardProps> = memo(({ item, width, col
       <View className="p-2.5 flex-1 justify-between">
         <View className="flex-row justify-between items-start">
           <Text 
-            className="text-base font-bold flex-1 mr-2" 
-            style={{ color: colors.text }} 
+            className="text-base font-bold flex-1 mr-2 text-gray-800 dark:text-gray-200" 
             numberOfLines={1}
           >
             {item.title}
           </Text>
           <Text 
-            className="text-base font-bold" 
-            style={{ color: colors.primary }}
+            className="text-base font-bold text-blue-500" 
           >
             {item.price}
           </Text>

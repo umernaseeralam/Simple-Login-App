@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +13,7 @@ type RootStackParamList = {
   EditProfile: undefined;
   Auth: undefined;
   ProfileTab: undefined;
+  UserInventory: undefined;
 };
 
 const ProfileScreen: React.FC = () => {
@@ -65,152 +66,58 @@ const ProfileScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      
-      <View style={styles.contentContainer}>
-        <View style={[styles.profileHeader, { 
-          backgroundColor: colors.card,
-          borderBottomColor: colors.border 
-        }]}>
-          <View style={[styles.profileImageContainer, { borderColor: colors.primary }]}>
-            <Text className='text-purple-700 text-4xl font-bold'>
+    <View className="flex-1">
+      <ScrollView className="flex-1">
+        <View className="items-center py-8 border-b border-gray-200">
+          <View className="w-30 h-30 rounded-full overflow-hidden mb-4 border-3 border-blue-500 bg-blue-500 justify-center items-center">
+            <Text className="text-purple-700 text-4xl font-bold">
               {getInitials(user?.name || 'User')}
             </Text>
           </View>
           
-          <Text style={[styles.userName, { color: colors.text }]}>{user?.name || 'User'}</Text>
-          <Text style={[styles.userEmail, { color: colors.secondaryText }]}>{user?.email || 'user@example.com'}</Text>
-          <Text style={[styles.joinDate, { color: colors.secondaryText }]}>Member since: January 2023</Text>
+          <Text className="text-2xl font-bold mb-1">{user?.name || 'User'}</Text>
+          <Text className="text-base text-gray-500 mb-1">{user?.email || 'user@example.com'}</Text>
+          <Text className="text-sm text-gray-500">Member since: January 2023</Text>
         </View>
         
-        <View style={[styles.bioSection, { 
-          backgroundColor: colors.card,
-          shadowColor: colors.text
-        }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>About Me</Text>
-          <Text className='text-emerald-700'>
+        <View className="p-5 mt-4 rounded-lg mx-4 bg-white shadow-sm">
+          <Text className="text-lg font-bold mb-2">About Me</Text>
+          <Text className="text-emerald-700">
             {user?.bio || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'}
           </Text>
         </View>
         
-        <View style={styles.actionsSection}>
+        <View className="px-5 py-5 mt-4 mb-8">
           <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: colors.primary }]}
+            className="py-3 rounded-lg items-center mb-4 bg-blue-500 flex-row justify-center"
             onPress={() => navigation.navigate('EditProfile' as never)}
           >
-            <Ionicons name="create-outline" size={20} color="#ffffff" style={styles.actionIcon} />
-            <Text style={styles.actionButtonText}>Edit Profile</Text>
+            <Ionicons name="create-outline" size={20} color="#ffffff" className="mr-2" />
+            <Text className="text-white text-base font-bold">Edit Profile</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[
-              styles.actionButton, 
-              styles.logoutButton, 
-              { 
-                backgroundColor: colors.card,
-                borderColor: '#e74c3c' 
-              }
-            ]}
+            className="py-3 rounded-lg items-center mb-4 bg-green-500 flex-row justify-center"
+            onPress={() => navigation.navigate('UserInventory' as never)}
+          >
+            <Ionicons name="cube-outline" size={20} color="#ffffff" className="mr-2" />
+            <Text className="text-white text-base font-bold">My Inventory</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            className="py-3 rounded-lg items-center border border-red-500 bg-white flex-row justify-center"
             onPress={handleLogout}
             disabled={isLoggingOut}
           >
-            <Ionicons name="log-out-outline" size={20} color="#e74c3c" style={styles.actionIcon} />
-            <Text style={[styles.actionButtonText, styles.logoutButtonText]}>
+            <Ionicons name="log-out-outline" size={20} color="#e74c3c" className="mr-2" />
+            <Text className="text-red-500 text-base font-bold">
               {isLoggingOut ? 'Logging out...' : 'Logout'}
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    flex: 1,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    paddingVertical: 30,
-    borderBottomWidth: 1,
-  },
-  profileImageContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    overflow: 'hidden',
-    marginBottom: 15,
-    borderWidth: 3,
-    backgroundColor: '#3498db',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileInitials: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  userEmail: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  joinDate: {
-    fontSize: 14,
-  },
-  bioSection: {
-    padding: 20,
-    marginTop: 15,
-    borderRadius: 10,
-    marginHorizontal: 15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  bioText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  actionsSection: {
-    padding: 20,
-    marginTop: 15,
-    marginBottom: 30,
-  },
-  actionButton: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 15,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  actionIcon: {
-    marginRight: 8,
-  },
-  actionButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  logoutButton: {
-    borderWidth: 1,
-  },
-  logoutButtonText: {
-    color: '#e74c3c',
-  },
-});
 
 export default ProfileScreen; 

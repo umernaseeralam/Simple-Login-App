@@ -30,14 +30,13 @@ const ProductGridCard: React.FC<ProductGridCardProps> = memo(({ item, width, col
 
   return (
     <TouchableOpacity
-      className="m-1.5 rounded-lg border overflow-hidden"
+      className="m-1.5 rounded-lg border overflow-hidden bg-white dark:bg-gray-800"
       style={{
         width,
         height: cardHeight,
-        backgroundColor: colors.card,
         borderColor: colors.border,
       }}
-      onPress={() => navigation.navigate('Chat', { item })}
+      onPress={() => navigation.navigate('ProductDetail', { product: item })}
     >
       <View
         className="justify-center items-center"
@@ -50,8 +49,7 @@ const ProductGridCard: React.FC<ProductGridCardProps> = memo(({ item, width, col
       </View>
       <View className="p-2.5 flex-1 justify-between">
         <Text 
-          className="text-base font-bold mb-1" 
-          style={{ color: colors.text }} 
+          className="text-base font-bold mb-1 text-gray-800 dark:text-gray-200" 
           numberOfLines={1}
         >
           {item.title}
@@ -63,8 +61,7 @@ const ProductGridCard: React.FC<ProductGridCardProps> = memo(({ item, width, col
           {item.description}
         </Text>
         <Text 
-          className="text-base font-bold" 
-          style={{ color: colors.primary }}
+          className="text-base font-bold text-blue-500" 
         >
           {item.price}
         </Text>
