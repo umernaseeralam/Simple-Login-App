@@ -140,7 +140,7 @@ const BrandsInput: React.FC<BrandsInputProps> = ({
         <View className="flex-1">
           <TextInput
             ref={inputRef}
-            className="h-12 border border-gray-500 rounded-md px-3"
+            className="h-12 border border-gray-200 rounded-md px-3"
             value={value}
             onChangeText={handleInputChange}
             placeholder={placeholder}
@@ -167,7 +167,7 @@ const BrandsInput: React.FC<BrandsInputProps> = ({
           )}
         </View>
         <TouchableOpacity
-          className="ml-2 h-12 w-12 border border-gray-500 rounded-md justify-center items-center"
+          className="ml-2 h-12 w-12 border border-gray-200 rounded-md justify-center items-center"
           onPress={handleOpenModal}
         >
           <Ionicons name="search" size={20} color={colors.text} />

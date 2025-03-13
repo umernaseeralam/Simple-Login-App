@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   StatusBar,
   Platform,
+  Keyboard,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -28,7 +29,7 @@ export const SectionHeader: React.FC<{ title: string; required?: boolean }> = ({
   return (
     <View className="flex-row items-center px-4 py-2 bg-gray-100">
       <Text className="font-bold text-base">{title}</Text>
-      {required && <Text className="text-red-500"> *Required</Text>}
+      {required && <Text className="text-red-500"> *</Text>}
     </View>
   );
 };
@@ -41,6 +42,8 @@ export const FormField: React.FC<{
   placeholder?: string;
   multiline?: boolean;
   keyboardType?: "default" | "numeric" | "email-address";
+  maxLength?: number;
+  showCharCount?: boolean;
 }> = ({
   label,
   value,
@@ -48,13 +51,15 @@ export const FormField: React.FC<{
   placeholder = "Type Here",
   multiline = false,
   keyboardType = "default",
+  maxLength,
+  showCharCount = false,
 }) => {
   const { colors } = useTheme();
   return (
-    <View className="px-4 py-3 border-b border-gray-200">
+    <View className="px-4 py-3">
       {label && <Text className="mb-2 text-gray-500">{label}</Text>}
       <TextInput
-        className={`border border-gray-500 rounded-md px-3 ${
+        className={`border border-gray-300 rounded-md px-3 ${
           multiline ? "h-32 py-2" : "h-12"
         }`}
         value={value}
@@ -64,7 +69,15 @@ export const FormField: React.FC<{
         multiline={multiline}
         keyboardType={keyboardType}
         textAlignVertical={multiline ? "top" : "center"}
+        editable={true}
+        autoCorrect={false}
+        maxLength={maxLength}
       />
+      {showCharCount && maxLength && (
+        <Text className="text-xs text-gray-400 mt-1 text-right">
+          {value.length}/{maxLength}
+        </Text>
+      )}
     </View>
   );
 };
@@ -78,12 +91,12 @@ export const OptionButtons: React.FC<{
   const { colors } = useTheme();
 
   return (
-    <View className="flex-row flex-wrap p-4 border-b border-gray-200">
-      {options.map((option) => (
+    <View className="flex-row flex-wrap p-3">
+      {options.map((option, index) => (
         <TouchableOpacity
-          key={option}
-          className={`px-3 py-1.5 rounded-full border border-gray-500 mr-2 mb-2 ${
-            selectedOption === option ? "bg-blue-500" : "bg-transparent"
+          key={`option-${index}-${option}`}
+          className={`px-3 py-1.5 rounded-md border border-gray-200 mr-2 mb-0 ${
+            selectedOption === option ? "bg-emerald-500" : "bg-transparent"
           }`}
           onPress={() => onSelect(option)}
         >
@@ -91,7 +104,40 @@ export const OptionButtons: React.FC<{
             className={
               selectedOption === option
                 ? "text-white text-xs"
-                : "text-gray-500 text-xs"
+                : "text-emerald-600 text-xs"
+            }
+          >
+            {option}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
+// Component for multiple selection buttons (for Comes With)
+export const MultiSelectButtons: React.FC<{
+  options: string[];
+  selectedOptions: string[];
+  onToggleOption: (option: string) => void;
+}> = ({ options, selectedOptions, onToggleOption }) => {
+  const { colors } = useTheme();
+
+  return (
+    <View className="flex-row flex-wrap p-4 border-b border-gray-200">
+      {options.map((option, index) => (
+        <TouchableOpacity
+          key={`multi-option-${index}-${option}`}
+          className={`px-3 py-1.5 rounded-md border border-gray-200 mr-2 mb-2 ${
+            selectedOptions.includes(option) ? "bg-emerald-500" : "bg-transparent"
+          }`}
+          onPress={() => onToggleOption(option)}
+        >
+          <Text
+            className={
+              selectedOptions.includes(option)
+                ? "text-white text-xs"
+                : "text-emerald-600 text-xs"
             }
           >
             {option}
@@ -115,7 +161,6 @@ const AddProductScreen: React.FC = () => {
   const [price, setPrice] = useState("");
   const [brand, setBrand] = useState("");
   const [comesWith, setComesWith] = useState<string[]>([]);
-  const [comesWithText, setComesWithText] = useState("");
   const [condition, setCondition] = useState<string | null>(null);
   const [polish, setPolish] = useState<string | null>(null);
   const [crystal, setCrystal] = useState<string | null>(null);
@@ -144,6 +189,7 @@ const AddProductScreen: React.FC = () => {
     "Needs Service",
   ];
   const crystalOptions = ["New", "Seller", "Preowned", "Needs Service"];
+  const comesWithOptions = ["Watch Head", "Service Card/Papers", "Box Only", "Blank Papers" , "Papers/Cards", "Box and Papers" , "Archieves and Box"];
   const dialOptions = ["New", "Seller", "Preowned", "Needs Service"];
   const bezelOptions = ["New", "Seller", "Preowned", "Needs Service"];
   const braceletOptions = ["New", "Seller", "Preowned", "Needs Service"];
@@ -154,18 +200,21 @@ const AddProductScreen: React.FC = () => {
     Alert.alert("Add Image", "This would open the image picker in a real app");
   };
 
-  const handleAddComesWithItem = () => {
-    if (comesWithText.trim()) {
-      setComesWith([...comesWith, comesWithText.trim()]);
-      setComesWithText("");
+  const handleToggleComesWithOption = (option: string) => {
+    // Check if option is already in the array
+    if (comesWith.includes(option)) {
+      // If already selected, remove it
+      setComesWith(comesWith.filter((item) => item !== option));
+    } else {
+      // If not selected, add it
+      setComesWith([...comesWith, option]);
     }
   };
 
-  const handleRemoveComesWithItem = (index: number) => {
-    setComesWith(comesWith.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = async () => {
+    // Dismiss keyboard if it's open
+    Keyboard.dismiss();
+    
     // Validate required fields
     if (!title.trim()) {
       Alert.alert("Error", "Please enter a product title");
@@ -181,7 +230,10 @@ const AddProductScreen: React.FC = () => {
       Alert.alert("Error", "You must be logged in to add a product");
       return;
     }
-
+    if (comesWith.length === 0) {
+      Alert.alert("Error", "Please select a 'Comes with' option");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -253,7 +305,10 @@ const AddProductScreen: React.FC = () => {
             <Text className="mt-4 text-base">Adding product...</Text>
           </View>
         ) : (
-          <ScrollView className="flex-1">
+          <ScrollView 
+            className="flex-1"
+            keyboardShouldPersistTaps="handled"
+          >
             {/* Images Section */}
             <View className="p-4 border-b border-gray-200">
               <TouchableOpacity
@@ -291,48 +346,9 @@ const AddProductScreen: React.FC = () => {
               value={description}
               onChangeText={setDescription}
               multiline={true}
+              maxLength={500}
+              showCharCount={true}
             />
-
-            <SectionHeader title="Comes with" />
-            <View className="px-4 py-3 border-b border-gray-200">
-              <View className="flex-row items-center">
-                <TextInput
-                  className="flex-1 h-12 border border-gray-500 rounded-md px-3 mr-2"
-                  value={comesWithText}
-                  onChangeText={setComesWithText}
-                  placeholder="Add item"
-                  placeholderTextColor={colors.secondaryText}
-                />
-                <TouchableOpacity
-                  className="px-3 py-2 bg-blue-500 rounded"
-                  onPress={handleAddComesWithItem}
-                >
-                  <Text className="text-white font-bold">Add</Text>
-                </TouchableOpacity>
-              </View>
-
-              {comesWith.length > 0 && (
-                <View className="flex-row flex-wrap mt-3">
-                  {comesWith.map((item, index) => (
-                    <View
-                      key={index}
-                      className="flex-row items-center px-2 py-1 bg-gray-100 rounded-full mr-2 mb-2"
-                    >
-                      <Text className="mr-1">{item}</Text>
-                      <TouchableOpacity
-                        onPress={() => handleRemoveComesWithItem(index)}
-                      >
-                        <Ionicons
-                          name="close-circle"
-                          size={18}
-                          color={colors.secondaryText}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
 
             <SectionHeader title="Pricing" required />
             <FormField
@@ -345,13 +361,15 @@ const AddProductScreen: React.FC = () => {
 
             <SectionHeader title="Watch Info" />
             <FormField label="Model" value={model} onChangeText={setModel} />
+
+            
             <View className="flex-row flex-wrap">
               <View className="w-1/2">
-                <FormField label="Ref" value={ref} onChangeText={setRef} />
+                <FormField label="Reference No" value={ref} onChangeText={setRef} />
               </View>
               <View className="w-1/2">
                 <FormField
-                  label="Serial"
+                  label="Serial No"
                   value={serial}
                   onChangeText={setSerial}
                 />
@@ -389,6 +407,13 @@ const AddProductScreen: React.FC = () => {
               onSelect={setCrystal}
             />
 
+            <SectionHeader title="Comes with" required />
+            <MultiSelectButtons
+              options={comesWithOptions}
+              selectedOptions={comesWith}
+              onToggleOption={handleToggleComesWithOption}
+            />
+
             <SectionHeader title="Dial" />
             <OptionButtons
               options={dialOptions}
@@ -418,15 +443,23 @@ const AddProductScreen: React.FC = () => {
             />
 
             <SectionHeader title="Additional Notes" />
-            <TextInput
-              className="h-30 border border-gray-500 rounded-md p-3 m-4 text-base"
-              value={additionalNotes}
-              onChangeText={setAdditionalNotes}
-              placeholder="Type additional notes here"
-              placeholderTextColor={colors.secondaryText}
-              multiline
-              textAlignVertical="top"
-            />
+            <View className="px-4 py-3">
+              <TextInput
+                className="h-30 border border-gray-300 rounded-md p-3 text-base"
+                value={additionalNotes}
+                onChangeText={setAdditionalNotes}
+                placeholder="Type additional notes here"
+                placeholderTextColor={colors.secondaryText}
+                multiline
+                textAlignVertical="top"
+                editable={true}
+                autoCorrect={false}
+                maxLength={500}
+              />
+              <Text className="text-xs text-gray-400 mt-1 text-right">
+                {additionalNotes.length}/500
+              </Text>
+            </View>
 
             <View className="h-10" />
           </ScrollView>
