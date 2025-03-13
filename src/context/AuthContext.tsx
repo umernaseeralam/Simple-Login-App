@@ -3,8 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AuthContextType = {
   isLoggedIn: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (identifier: string, password?: string) => Promise<boolean>;
+  signup: (name: string, identifier: string, password?: string, isPhone?: boolean) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUserProfile: (updatedUser: User) => Promise<boolean>;
   user: User | null;
@@ -14,7 +14,8 @@ type AuthContextType = {
 type User = {
   id: string;
   name: string;
-  email: string;
+  email?: string;
+  phoneNumber?: string;
   bio?: string;
 };
 
@@ -46,16 +47,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadUserData();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (identifier: string, password?: string): Promise<boolean> => {
     try {
       // In a real app, you would make an API call to authenticate the user
       // For this example, we'll simulate a successful login
       
+      // Determine if the identifier is an email or phone number
+      const isEmail = identifier.includes('@');
+      
+      // For email login, password is required
+      if (isEmail && !password) {
+        return false;
+      }
+
       // Create a mock user
       const mockUser: User = {
         id: '1',
         name: 'John Doe',
-        email: email,
+        ...(isEmail ? { email: identifier } : { phoneNumber: identifier }),
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
       };
 
@@ -72,16 +81,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
+  const signup = async (name: string, identifier: string, password?: string, isPhone: boolean = false): Promise<boolean> => {
     try {
       // In a real app, you would make an API call to register the user
       // For this example, we'll simulate a successful registration
       
+      // For email signup, password is required
+      if (!isPhone && !password) {
+        return false;
+      }
+
       // Create a mock user
       const mockUser: User = {
         id: '1',
         name: name,
-        email: email,
+        ...(isPhone ? { phoneNumber: identifier } : { email: identifier }),
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
       };
 

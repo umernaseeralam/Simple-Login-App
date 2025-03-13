@@ -17,6 +17,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
 import { useAuth } from "../context/AuthContext";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import BrandsInput from "../components/BrandsInput";
 
 // Component for section headers
 export const SectionHeader: React.FC<{ title: string; required?: boolean }> = ({
@@ -270,10 +271,11 @@ const AddProductScreen: React.FC = () => {
 
             {/* Basic Info Section */}
             <SectionHeader title="Brand" required />
-            <FormField
-              placeholder="Search for brand"
+            <BrandsInput
               value={brand}
               onChangeText={setBrand}
+              placeholder="Search for brand"
+              label="Brand Name"
             />
 
             <SectionHeader title="Title" required />
