@@ -134,7 +134,7 @@ const BrandsInput: React.FC<BrandsInputProps> = ({
   );
 
   return (
-    <View className="px-4 py-3 border-b border-gray-200">
+    <View className="px-4 py-3">
       {label && <Text className="mb-2 text-gray-500">{label}</Text>}
       <View className="flex-row items-center">
         <View className="flex-1">

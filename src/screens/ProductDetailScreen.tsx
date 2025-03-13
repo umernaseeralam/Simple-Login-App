@@ -134,7 +134,7 @@ const ProductDetailScreen: React.FC = () => {
 
         {/* Combined Watch Info and Condition */}
         {(product.watchInfo || product.condition || product.polish || product.crystal || 
-          product.dial || product.bezel || product.movement || product.bracelet) && (
+          product.dial || product.dialColor || product.dialDetails || product.chrono || product.bezel || product.movement || product.bracelet) && (
           <DetailSection title="Product Details">
             {/* Watch Info */}
             {product.watchInfo && (
@@ -153,6 +153,9 @@ const ProductDetailScreen: React.FC = () => {
             <DetailItem label="Polish" value={product.polish} />
             <DetailItem label="Crystal" value={product.crystal} />
             <DetailItem label="Dial" value={product.dial} />
+            <DetailItem label="Dial Color" value={product.dialColor} />
+            <DetailItem label="Dial Details" value={product.dialDetails} />
+            <DetailItem label="Chrono" value={product.chrono} />
             <DetailItem label="Bezel" value={product.bezel} />
             <DetailItem label="Movement" value={product.movement} />
             <DetailItem label="Bracelet" value={product.bracelet} />

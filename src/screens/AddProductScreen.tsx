@@ -19,13 +19,12 @@ import { useProducts } from "../context/ProductsContext";
 import { useAuth } from "../context/AuthContext";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import BrandsInput from "../components/BrandsInput";
+import { OptionButtons, MultiSelectButtons } from "../components/MultipleOptionsComponent";
 
-// Component for section headers
 export const SectionHeader: React.FC<{ title: string; required?: boolean }> = ({
   title,
   required = false,
 }) => {
-  const { colors } = useTheme();
   return (
     <View className="flex-row items-center px-4 py-2 bg-gray-100">
       <Text className="font-bold text-base">{title}</Text>
@@ -34,7 +33,6 @@ export const SectionHeader: React.FC<{ title: string; required?: boolean }> = ({
   );
 };
 
-// Component for form fields
 export const FormField: React.FC<{
   label?: string;
   value: string;
@@ -44,6 +42,9 @@ export const FormField: React.FC<{
   keyboardType?: "default" | "numeric" | "email-address";
   maxLength?: number;
   showCharCount?: boolean;
+  isPriceField?: boolean;
+  validation?: (text: string) => string | null;
+  autoCapitalize?: boolean;
 }> = ({
   label,
   value,
@@ -53,18 +54,54 @@ export const FormField: React.FC<{
   keyboardType = "default",
   maxLength,
   showCharCount = false,
+  isPriceField = false,
+  validation,
+  autoCapitalize = false,
 }) => {
   const { colors } = useTheme();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleChangeText = (text: string) => {
+    // Handle price field formatting
+    if (isPriceField) {
+      // Remove any non-numeric characters except dots
+      let numericValue = text.replace(/[^0-9.]/g, "");
+
+      // Ensure only one decimal point
+      const parts = numericValue.split(".");
+      if (parts.length > 2) {
+        numericValue = parts[0] + "." + parts.slice(1).join("");
+      }
+
+      // Add $ sign if it's not already there
+      if (!numericValue.startsWith("$") && numericValue) {
+        numericValue = "$" + numericValue;
+      }
+
+      onChangeText(numericValue);
+    } else if (autoCapitalize) {
+      // Auto capitalize input
+      onChangeText(text.toUpperCase());
+    } else {
+      onChangeText(text);
+    }
+
+    // Validate field if validation function is provided
+    if (validation) {
+      setError(validation(text));
+    }
+  };
+
   return (
-    <View className="px-4 py-3">
-      {label && <Text className="mb-2 text-gray-500">{label}</Text>}
+    <View className="px-4 py-2">
+      {label && <Text className="mb-1 text-gray-500">{label}</Text>}
       <TextInput
-        className={`border border-gray-300 rounded-md px-3 ${
-          multiline ? "h-32 py-2" : "h-12"
-        }`}
+        className={`border ${
+          error ? "border-red-500" : "border-gray-300"
+        } rounded-md px-3 ${multiline ? "h-28 py-2" : "h-11"}`}
         value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
+        onChangeText={handleChangeText}
+        placeholder={isPriceField && !value ? "$0" : placeholder}
         placeholderTextColor={colors.secondaryText}
         multiline={multiline}
         keyboardType={keyboardType}
@@ -73,77 +110,12 @@ export const FormField: React.FC<{
         autoCorrect={false}
         maxLength={maxLength}
       />
+      {error && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
       {showCharCount && maxLength && (
         <Text className="text-xs text-gray-400 mt-1 text-right">
           {value.length}/{maxLength}
         </Text>
       )}
-    </View>
-  );
-};
-
-// Component for option buttons (New, Seller, Preowned, Needs Service)
-export const OptionButtons: React.FC<{
-  options: string[];
-  selectedOption: string | null;
-  onSelect: (option: string) => void;
-}> = ({ options, selectedOption, onSelect }) => {
-  const { colors } = useTheme();
-
-  return (
-    <View className="flex-row flex-wrap p-3">
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={`option-${index}-${option}`}
-          className={`px-3 py-1.5 rounded-md border border-gray-200 mr-2 mb-0 ${
-            selectedOption === option ? "bg-emerald-500" : "bg-transparent"
-          }`}
-          onPress={() => onSelect(option)}
-        >
-          <Text
-            className={
-              selectedOption === option
-                ? "text-white text-xs"
-                : "text-emerald-600 text-xs"
-            }
-          >
-            {option}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
-
-// Component for multiple selection buttons (for Comes With)
-export const MultiSelectButtons: React.FC<{
-  options: string[];
-  selectedOptions: string[];
-  onToggleOption: (option: string) => void;
-}> = ({ options, selectedOptions, onToggleOption }) => {
-  const { colors } = useTheme();
-
-  return (
-    <View className="flex-row flex-wrap p-4 border-b border-gray-200">
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={`multi-option-${index}-${option}`}
-          className={`px-3 py-1.5 rounded-md border border-gray-200 mr-2 mb-2 ${
-            selectedOptions.includes(option) ? "bg-emerald-500" : "bg-transparent"
-          }`}
-          onPress={() => onToggleOption(option)}
-        >
-          <Text
-            className={
-              selectedOptions.includes(option)
-                ? "text-white text-xs"
-                : "text-emerald-600 text-xs"
-            }
-          >
-            {option}
-          </Text>
-        </TouchableOpacity>
-      ))}
     </View>
   );
 };
@@ -154,6 +126,7 @@ const AddProductScreen: React.FC = () => {
   const { addProduct } = useProducts();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
 
   // Form state
   const [title, setTitle] = useState("");
@@ -165,6 +138,9 @@ const AddProductScreen: React.FC = () => {
   const [polish, setPolish] = useState<string | null>(null);
   const [crystal, setCrystal] = useState<string | null>(null);
   const [dial, setDial] = useState<string | null>(null);
+  const [dialColor, setDialColor] = useState<string | null>(null);
+  const [dialDetails, setDialDetails] = useState<string | null>(null);
+  const [chrono, setChrono] = useState<string | null>(null);
   const [bezel, setBezel] = useState<string | null>(null);
   const [bracelet, setBracelet] = useState<string | null>(null);
   const [movement, setMovement] = useState<string | null>(null);
@@ -189,40 +165,87 @@ const AddProductScreen: React.FC = () => {
     "Needs Service",
   ];
   const crystalOptions = ["New", "Seller", "Preowned", "Needs Service"];
-  const comesWithOptions = ["Watch Head", "Service Card/Papers", "Box Only", "Blank Papers" , "Papers/Cards", "Box and Papers" , "Archieves and Box"];
+  const comesWithOptions = [
+    "Watch Head",
+    "Service Card/Papers",
+    "Box Only",
+    "Blank Papers",
+    "Papers/Cards",
+    "Box and Papers",
+    "Archieves and Box",
+  ];
   const dialOptions = ["New", "Seller", "Preowned", "Needs Service"];
+  const dialColorOptions = ["New", "Seller", "Preowned", "Needs Service"];
+  const dialDetailsOptions = ["New", "Seller", "Preowned", "Needs Service"];
+  const chronoOptions = ["New", "Seller", "Preowned", "Needs Service"];
   const bezelOptions = ["New", "Seller", "Preowned", "Needs Service"];
   const braceletOptions = ["New", "Seller", "Preowned", "Needs Service"];
   const movementOptions = ["New", "Seller", "Preowned", "Needs Service"];
 
+  // Validation functions
+  const validateTitle = (text: string) => {
+    return text.trim() === "" ? "Title is required" : null;
+  };
+
+  const validatePrice = (text: string) => {
+    const numericValue = text.replace(/[^0-9.]/g, "");
+    return numericValue === "" ? "Price is required" : null;
+  };
+
+  const validateYear = (text: string) => {
+    if (text === "") return null;
+    const yearNum = parseInt(text, 10);
+    const currentYear = new Date().getFullYear();
+    if (isNaN(yearNum) || yearNum < 1700 || yearNum > currentYear) {
+      return `Year must be between 1700 and ${currentYear}`;
+    }
+    return null;
+  };
+
+  const validateBrand = (text: string) => {
+    return text.trim() === "" ? "Brand is required" : null;
+  };
+
   const handleAddImage = () => {
-    // In a real app, this would open the image picker
     Alert.alert("Add Image", "This would open the image picker in a real app");
   };
 
   const handleToggleComesWithOption = (option: string) => {
-    // Check if option is already in the array
-    if (comesWith.includes(option)) {
-      // If already selected, remove it
-      setComesWith(comesWith.filter((item) => item !== option));
-    } else {
-      // If not selected, add it
-      setComesWith([...comesWith, option]);
-    }
+    const updatedOptions = comesWith.includes(option)
+      ? comesWith.filter((item) => item !== option)
+      : [...comesWith, option];
+
+    setComesWith(updatedOptions);
+    setErrors({
+      ...errors,
+      comesWith:
+        updatedOptions.length === 0
+          ? "Please select at least one option"
+          : null,
+    });
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string | null> = {
+      title: validateTitle(title),
+      price: validatePrice(price),
+      brand: validateBrand(brand),
+      year: validateYear(year),
+      comesWith:
+        comesWith.length === 0 ? "Please select at least one option" : null,
+    };
+
+    setErrors(newErrors);
+
+    // Return true if no errors (all values are null)
+    return Object.values(newErrors).every((error) => error === null);
   };
 
   const handleSubmit = async () => {
-    // Dismiss keyboard if it's open
     Keyboard.dismiss();
-    
-    // Validate required fields
-    if (!title.trim()) {
-      Alert.alert("Error", "Please enter a product title");
-      return;
-    }
 
-    if (!price.trim()) {
-      Alert.alert("Error", "Please enter a price");
+    if (!validateForm()) {
+      Alert.alert("Error", "Please fill all the required fields");
       return;
     }
 
@@ -230,19 +253,20 @@ const AddProductScreen: React.FC = () => {
       Alert.alert("Error", "You must be logged in to add a product");
       return;
     }
-    if (comesWith.length === 0) {
-      Alert.alert("Error", "Please select a 'Comes with' option");
-      return;
-    }
+
     setIsSubmitting(true);
 
     try {
-      // Create the product object
+      // Ensure price has $ sign
+      const formattedPrice = price.trim().startsWith("$")
+        ? price.trim()
+        : `$${price.trim()}`;
+
       const newProduct = {
         title: title.trim(),
         description: description.trim(),
-        price: price.trim().startsWith("$") ? price.trim() : `$${price.trim()}`,
-        color: "#" + Math.floor(Math.random() * 16777215).toString(16), // Random color
+        price: formattedPrice,
+        color: "#" + Math.floor(Math.random() * 16777215).toString(16),
         ownerId: user.id,
         brand: brand.trim(),
         comesWith: comesWith.length > 0 ? comesWith : undefined,
@@ -257,6 +281,9 @@ const AddProductScreen: React.FC = () => {
         polish: polish || undefined,
         crystal: crystal || undefined,
         dial: dial || undefined,
+        dialColor: dialColor || undefined,
+        dialDetails: dialDetails || undefined,
+        chrono: chrono || undefined,
         bezel: bezel || undefined,
         movement: movement || undefined,
         bracelet: bracelet || undefined,
@@ -277,13 +304,19 @@ const AddProductScreen: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}
+    >
       <StatusBar
         backgroundColor={colors.background}
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={isDarkMode ? "light-content" : "dark-content"}
       />
       <View className="flex-1 bg-white">
-        <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
+        <View className="flex-row justify-between items-center px-4 py-2 border-b border-gray-200">
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
@@ -305,14 +338,10 @@ const AddProductScreen: React.FC = () => {
             <Text className="mt-4 text-base">Adding product...</Text>
           </View>
         ) : (
-          <ScrollView 
-            className="flex-1"
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Images Section */}
-            <View className="p-4 border-b border-gray-200">
+          <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
+            <View className="p-3 border-b border-gray-200">
               <TouchableOpacity
-                className="h-24 border border-dashed border-gray-500 rounded-lg justify-center items-center"
+                className="h-20 border border-dashed border-gray-500 rounded-lg justify-center items-center"
                 onPress={handleAddImage}
               >
                 <Ionicons
@@ -320,24 +349,56 @@ const AddProductScreen: React.FC = () => {
                   size={24}
                   color={colors.secondaryText}
                 />
-                <Text className="mt-2 text-gray-500">Add more photos</Text>
+                <Text className="mt-1 text-gray-500">Add photos</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Basic Info Section */}
-            <SectionHeader title="Brand" required />
+            <SectionHeader title="Required" required />
             <BrandsInput
-              value={brand}
-              onChangeText={setBrand}
-              placeholder="Search for brand"
               label="Brand Name"
+              value={brand}
+              onChangeText={(text) => {
+                setBrand(text);
+                setErrors({ ...errors, brand: validateBrand(text) });
+              }}
+              placeholder="Search for brand"
+            />
+            {errors.brand && (
+              <Text className="text-red-500 text-xs px-4">{errors.brand}</Text>
+            )}
+
+            <MultiSelectButtons
+              label="Comes with:"
+              options={comesWithOptions}
+              selectedOptions={comesWith}
+              onToggleOption={handleToggleComesWithOption}
+              required={true}
+              error={errors.comesWith}
             />
 
-            <SectionHeader title="Title" required />
+            <SectionHeader title="Pricing" required />
+            <FormField
+              label="Asking Price"
+              value={price}
+              onChangeText={(text) => {
+                setPrice(text);
+                setErrors({ ...errors, price: validatePrice(text) });
+              }}
+              placeholder="$0"
+              keyboardType="numeric"
+              isPriceField={true}
+              validation={validatePrice}
+            />
+
+            <SectionHeader title="Product Name" required />
             <FormField
               placeholder="Product Title"
               value={title}
-              onChangeText={setTitle}
+              onChangeText={(text) => {
+                setTitle(text);
+                setErrors({ ...errors, title: validateTitle(text) });
+              }}
+              validation={validateTitle}
             />
 
             <SectionHeader title="Description" />
@@ -350,41 +411,50 @@ const AddProductScreen: React.FC = () => {
               showCharCount={true}
             />
 
-            <SectionHeader title="Pricing" required />
-            <FormField
-              label="Asking Price"
-              value={price}
-              onChangeText={setPrice}
-              placeholder="$0"
-              keyboardType="numeric"
-            />
-
             <SectionHeader title="Watch Info" />
-            <FormField label="Model" value={model} onChangeText={setModel} />
 
-            
             <View className="flex-row flex-wrap">
               <View className="w-1/2">
-                <FormField label="Reference No" value={ref} onChangeText={setRef} />
+                <FormField
+                  label="Reference No"
+                  value={ref}
+                  onChangeText={setRef}
+                  autoCapitalize={true}
+                />
               </View>
               <View className="w-1/2">
                 <FormField
                   label="Serial No"
                   value={serial}
                   onChangeText={setSerial}
+                  autoCapitalize={true}
                 />
-              </View>
-              <View className="w-1/2">
-                <FormField label="Year" value={year} onChangeText={setYear} />
               </View>
               <View className="w-1/2">
                 <FormField
-                  label="Time Score"
-                  value={timeScore}
-                  onChangeText={setTimeScore}
+                  label="Year"
+                  value={year}
+                  onChangeText={(text) => {
+                    setYear(text);
+                    setErrors({ ...errors, year: validateYear(text) });
+                  }}
+                  keyboardType="numeric"
+                  validation={validateYear}
+                />
+              </View>
+              <View className="w-1/2">
+                <FormField
+                  label="Model"
+                  value={model}
+                  onChangeText={setModel}
                 />
               </View>
             </View>
+            <FormField
+              label="Time Score"
+              value={timeScore}
+              onChangeText={setTimeScore}
+            />
 
             <SectionHeader title="Condition" />
             <OptionButtons
@@ -400,18 +470,25 @@ const AddProductScreen: React.FC = () => {
               onSelect={setPolish}
             />
 
+            <SectionHeader title="Chrono" />
+            <OptionButtons
+              options={chronoOptions}
+              selectedOption={chrono}
+              onSelect={setChrono}
+            />
+
+            <SectionHeader title="Movement" />
+            <OptionButtons
+              options={movementOptions}
+              selectedOption={movement}
+              onSelect={setMovement}
+            />
+
             <SectionHeader title="Crystal" />
             <OptionButtons
               options={crystalOptions}
               selectedOption={crystal}
               onSelect={setCrystal}
-            />
-
-            <SectionHeader title="Comes with" required />
-            <MultiSelectButtons
-              options={comesWithOptions}
-              selectedOptions={comesWith}
-              onToggleOption={handleToggleComesWithOption}
             />
 
             <SectionHeader title="Dial" />
@@ -420,19 +497,24 @@ const AddProductScreen: React.FC = () => {
               selectedOption={dial}
               onSelect={setDial}
             />
+            <SectionHeader title="Dial Color" />
+            <OptionButtons
+              options={dialColorOptions}
+              selectedOption={dialColor}
+              onSelect={setDialColor}
+            />
+            <SectionHeader title="Dial Details" />
+            <OptionButtons
+              options={dialDetailsOptions}
+              selectedOption={dialDetails}
+              onSelect={setDialDetails}
+            />
 
             <SectionHeader title="Bezel" />
             <OptionButtons
               options={bezelOptions}
               selectedOption={bezel}
               onSelect={setBezel}
-            />
-
-            <SectionHeader title="Movement" />
-            <OptionButtons
-              options={movementOptions}
-              selectedOption={movement}
-              onSelect={setMovement}
             />
 
             <SectionHeader title="Bracelet" />
@@ -443,9 +525,9 @@ const AddProductScreen: React.FC = () => {
             />
 
             <SectionHeader title="Additional Notes" />
-            <View className="px-4 py-3">
+            <View className="px-4 py-2">
               <TextInput
-                className="h-30 border border-gray-300 rounded-md p-3 text-base"
+                className="h-24 border border-gray-300 rounded-md p-3 text-base"
                 value={additionalNotes}
                 onChangeText={setAdditionalNotes}
                 placeholder="Type additional notes here"
@@ -461,7 +543,7 @@ const AddProductScreen: React.FC = () => {
               </Text>
             </View>
 
-            <View className="h-10" />
+            <View className="h-8" />
           </ScrollView>
         )}
       </View>
@@ -469,7 +551,6 @@ const AddProductScreen: React.FC = () => {
   );
 };
 
-// Keep the styles export for backward compatibility with EditProductScreen
 export const styles = {
   container: "flex-1 bg-white",
   header:

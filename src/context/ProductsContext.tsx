@@ -22,6 +22,9 @@ export interface Product {
   polish?: string;
   crystal?: string;
   dial?: string;
+  dialColor?: string;
+  dialDetails?: string;
+  chrono?: string;
   bezel?: string;
   movement?: string;
   bracelet?: string;
