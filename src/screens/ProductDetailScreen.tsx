@@ -69,15 +69,29 @@ const ProductDetailScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Product Details</Text>
-        {isOwner ? (
-          <TouchableOpacity onPress={() => navigation.navigate('EditProduct', { product })}>
-            <Ionicons name="create-outline" size={24} color={colors.primary} />
+        <View style={styles.headerActions}>
+          {isOwner ? (
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('EditProduct', { product })}
+              style={styles.headerIcon}
+            >
+              <Ionicons name="create-outline" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Chat', { item: product })}
+              style={styles.headerIcon}
+            >
+              <Ionicons name="chatbubble-outline" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Invoice', { product })}
+            style={styles.headerIcon}
+          >
+            <Ionicons name="receipt-outline" size={24} color={colors.primary} />
           </TouchableOpacity>
-        ) : (
-          <TouchableOpacity onPress={() => navigation.navigate('Chat', { item: product })}>
-            <Ionicons name="chatbubble-outline" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        )}
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView}>
@@ -112,6 +126,15 @@ const ProductDetailScreen: React.FC = () => {
             </Text>
           )}
         </View>
+
+        {/* View Invoice Button */}
+        <TouchableOpacity 
+          style={[styles.invoiceButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('Invoice', { product })}
+        >
+          <Ionicons name="receipt-outline" size={20} color={colors.primary} style={styles.invoiceButtonIcon} />
+          <Text style={[styles.invoiceButtonText, { color: colors.text }]}>View Invoice</Text>
+        </TouchableOpacity>
 
         {/* Action Buttons */}
         {!isOwner && (
@@ -205,6 +228,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  headerActions: {
+    flexDirection: 'row',
+  },
+  headerIcon: {
+    marginLeft: 16,
+  },
   scrollView: {
     flex: 1,
   },
@@ -246,6 +275,23 @@ const styles = StyleSheet.create({
   productDescription: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  invoiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    marginHorizontal: 16,
+    marginVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  invoiceButtonIcon: {
+    marginRight: 8,
+  },
+  invoiceButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
   actionButtonsContainer: {
     flexDirection: 'row',

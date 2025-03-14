@@ -30,6 +30,7 @@ export interface Product {
   bracelet?: string;
   additionalNotes?: string;
   images?: string[];
+  purchaseDate?: string;
 }
 
 interface ProductsContextType {

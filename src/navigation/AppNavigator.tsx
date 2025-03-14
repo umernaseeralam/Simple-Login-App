@@ -22,6 +22,7 @@ import UserInventoryScreen from '../screens/UserInventoryScreen';
 import AddProductScreen from '../screens/AddProductScreen';
 import EditProductScreen from '../screens/EditProductScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
+import InvoiceScreen from '../screens/InvoiceScreen';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Product } from '../context/ProductsContext';
@@ -56,6 +57,7 @@ export type RootStackParamList = {
   EditProduct: { product: Product };
   ProductDetail: { product: Product };
   ForgotPassword: undefined;
+  Invoice: { product: Product };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -294,6 +296,7 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="Invoice" component={InvoiceScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
