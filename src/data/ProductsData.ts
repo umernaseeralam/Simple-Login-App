@@ -52,6 +52,7 @@ export const itemsData: Product[] = [
     price: "$29.99",
     ownerId: "3",
     invoiceStatus: "Cleared",
+    images: ["../../assets/Watches/Watch(1).JPG"],
   },
   {
     id: 4,

@@ -26,7 +26,7 @@ const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({
   const { colors } = useTheme();
   return (
     <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>{title}</Text>
+      <Text className='text-emerald-700 border-b border-gray-300' style={[styles.sectionTitle]}>{title}</Text>
       <View style={styles.sectionContent}>
         {children}
       </View>
@@ -41,7 +41,7 @@ const DetailItem: React.FC<{ label: string; value: string | undefined | null }> 
   return (
     <View className='border-b border-gray-200' style={[styles.detailItem]}>
       <Text style={[styles.detailLabel, { color: colors.secondaryText }]}>{label}:</Text>
-      <Text style={[styles.detailValue, { color: colors.text }]}>{value}</Text>
+      <Text className='text-right' style={[styles.detailValue, { color: colors.text }]}>{value}</Text>
     </View>
   );
 };
