@@ -31,6 +31,7 @@ export interface Product {
   additionalNotes?: string;
   images?: string[];
   purchaseDate?: string;
+  invoiceStatus?: string;
 }
 
 interface ProductsContextType {

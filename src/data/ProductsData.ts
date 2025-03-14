@@ -8,7 +8,8 @@ export const itemsData: Product[] = [
     description: "Bluetooth 5.0 with noise cancellation",
     color: "#3498db",
     price: "$49.99",
-    ownerId: "",
+    ownerId: "1",
+    invoiceStatus: "Cleared",
     purchaseDate: "2025-02-15"
   },
   {
@@ -17,7 +18,7 @@ export const itemsData: Product[] = [
     description: "Fitness tracker with heart rate monitor",
     color: "#2ecc71",
     price: "$89.99",
-    ownerId: "",
+    ownerId: "2",
     brand: "Rolex",
     comesWith: ["Head Only"],
     watchInfo: {
@@ -38,6 +39,7 @@ export const itemsData: Product[] = [
         movement: "Automatic",
         bracelet: "Oyster",
         purchaseDate: "2025-02-15",
+        invoiceStatus: "Pending",
         additionalNotes: "This is a test product",
         images: ["https://plus.unsplash.com/premium_photo-1686245735403-a01147d86b89?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
   },
@@ -48,7 +50,8 @@ export const itemsData: Product[] = [
     color: "#e74c3c",
     purchaseDate: "2025-02-15",
     price: "$29.99",
-    ownerId: "",
+    ownerId: "3",
+    invoiceStatus: "Cleared",
   },
   {
     id: 4,
@@ -57,7 +60,8 @@ export const itemsData: Product[] = [
     color: "#f39c12",
     purchaseDate: "2025-02-15",
     price: "$19.99",
-    ownerId: "",
+    ownerId: "4",
+    invoiceStatus: "Pending",
   },
   {
     id: 5,
@@ -66,7 +70,8 @@ export const itemsData: Product[] = [
     color: "#9b59b6",
     purchaseDate: "2025-02-15",
     price: "$39.99",
-    ownerId: "",
+    ownerId: "5",
+    invoiceStatus: "Cleared",
   },
   {
     id: 6,
@@ -75,7 +80,8 @@ export const itemsData: Product[] = [
     color: "#1abc9c",
     purchaseDate: "2025-02-15",
     price: "$12.99",
-    ownerId: "",
+    ownerId: "6",
+    invoiceStatus: "Pending",
   },
   {
     id: 7,
@@ -84,7 +90,8 @@ export const itemsData: Product[] = [
     color: "#d35400",
     purchaseDate: "2025-02-15",
     price: "$24.99",
-    ownerId: "",
+    ownerId: "7",
+    invoiceStatus: "Cleared",
   },
   {
     id: 8,
@@ -93,7 +100,8 @@ export const itemsData: Product[] = [
     color: "#34495e",
     purchaseDate: "2025-02-15",
     price: "$14.99",
-    ownerId: "",
+    ownerId: "8",
+    invoiceStatus: "Pending",
   },
   {
     id: 9,
@@ -102,7 +110,8 @@ export const itemsData: Product[] = [
     color: "#16a085",
     purchaseDate: "2025-02-15",
     price: "$35.99",
-    ownerId: "",
+    ownerId: "9",
+    invoiceStatus: "Cleared",
   },
   {
     id: 10,
@@ -111,7 +120,8 @@ export const itemsData: Product[] = [
     color: "#27ae60",
     purchaseDate: "2025-02-15",
     price: "$32.99",
-    ownerId: "",
+    ownerId: "10",
+    invoiceStatus: "Pending",
   },
   {
     id: 11,
@@ -120,7 +130,8 @@ export const itemsData: Product[] = [
     color: "#c0392b",
     purchaseDate: "2025-02-15",
     price: "$7.99",
-    ownerId: "",
+    ownerId: "11",
+    invoiceStatus: "Cleared",
   },
   {
     id: 12,
@@ -129,7 +140,8 @@ export const itemsData: Product[] = [
     color: "#f1c40f",
     purchaseDate: "2025-02-15",
     price: "$9.99",
-    ownerId: "",
+    ownerId: "12",
+    invoiceStatus: "Pending",
   },
   {
     id: 13,
@@ -138,7 +150,8 @@ export const itemsData: Product[] = [
     color: "#8e44ad",
     purchaseDate: "2025-02-15",
     price: "$22.99",
-    ownerId: "",
+    ownerId: "13",
+    invoiceStatus: "Cleared",
   },
   {
     id: 14,
@@ -147,7 +160,8 @@ export const itemsData: Product[] = [
     color: "#2980b9",
     purchaseDate: "2025-02-15",
     price: "$11.99",
-    ownerId: "",
+    ownerId: "14",
+    invoiceStatus: "Pending",
   },
   {
     id: 15,
@@ -156,7 +170,8 @@ export const itemsData: Product[] = [
     color: "#e67e22",
     purchaseDate: "2025-02-15",
     price: "$8.99",
-    ownerId: "",
+    ownerId: "15",
+    invoiceStatus: "Cleared",
   },
   {
     id: 16,
@@ -165,7 +180,8 @@ export const itemsData: Product[] = [
     color: "#7f8c8d",
     purchaseDate: "2025-02-15",
     price: "$18.99",
-    ownerId: "",
+    ownerId: "16",
+    invoiceStatus: "Pending",
   },
   {
     id: 17,
@@ -174,7 +190,8 @@ export const itemsData: Product[] = [
     color: "#2c3e50",
     purchaseDate: "2025-02-15",
     price: "$129.99",
-    ownerId: "",
+    ownerId: "17",
+    invoiceStatus: "Cleared",
   },
   {
     id: 18,
@@ -183,7 +200,8 @@ export const itemsData: Product[] = [
     color: "#3498db",
     purchaseDate: "2025-02-15",
     price: "$79.99",
-    ownerId: "",
+    ownerId: "18",
+    invoiceStatus: "Pending",
   },
   {
     id: 19,
@@ -192,7 +210,8 @@ export const itemsData: Product[] = [
     color: "#2ecc71",
     purchaseDate: "2025-02-15",
     price: "$25.99",
-    ownerId: "",
+    invoiceStatus: "Cleared",
+    ownerId: "19",
   },
   {
     id: 20,
@@ -201,7 +220,8 @@ export const itemsData: Product[] = [
     color: "#e74c3c",
     purchaseDate: "2025-02-15",
     price: "$69.99",
-    ownerId: "",
+    ownerId: "20",
+    invoiceStatus: "Pending",
   },
   {
     id: 21,
@@ -210,7 +230,8 @@ export const itemsData: Product[] = [
     color: "#f39c12",
     purchaseDate: "2025-02-15",
     price: "$15.99",
-    ownerId: "",
+    ownerId: "21",
+    invoiceStatus: "Pending",
   },
   {
     id: 22,
@@ -219,7 +240,8 @@ export const itemsData: Product[] = [
     color: "#9b59b6",
     purchaseDate: "2025-02-15",
     price: "$45.99",
-    ownerId: "",
+    ownerId: "22",
+    invoiceStatus: "Pending",
   },
   {
     id: 23,
@@ -228,7 +250,8 @@ export const itemsData: Product[] = [
     color: "#1abc9c",
     purchaseDate: "2025-02-15",
     price: "$32.99",
-    ownerId: "",
+    ownerId: "23",
+    invoiceStatus: "Pending",
   },
   {
     id: 24,
@@ -237,7 +260,8 @@ export const itemsData: Product[] = [
     color: "#d35400",
     purchaseDate: "2025-02-15",
     price: "$14.99",
-    ownerId: "",
+    ownerId: "24",
+    invoiceStatus: "Pending",
   },
   {
     id: 25,
@@ -246,7 +270,8 @@ export const itemsData: Product[] = [
     color: "#34495e",
     purchaseDate: "2025-02-15",
     price: "$29.99",
-    ownerId: "",
+    ownerId: "25",
+    invoiceStatus: "Pending",
   },
   {
     id: 26,
@@ -255,7 +280,8 @@ export const itemsData: Product[] = [
     color: "#16a085",
     purchaseDate: "2025-02-15",
     price: "$19.99",
-    ownerId: "",
+    ownerId: "26",
+    invoiceStatus: "Pending",
   },
   {
     id: 27,
@@ -264,7 +290,8 @@ export const itemsData: Product[] = [
     color: "#27ae60",
     purchaseDate: "2025-02-15",
     price: "$24.99",
-    ownerId: "",
+    ownerId: "27",
+    invoiceStatus: "Pending",
   },
   {
     id: 28,
@@ -273,7 +300,8 @@ export const itemsData: Product[] = [
     color: "#c0392b",
     purchaseDate: "2025-02-15",
     price: "$17.99",
-    ownerId: "",
+    ownerId: "28",
+    invoiceStatus: "Pending",
   },
   {
     id: 29,
@@ -282,7 +310,8 @@ export const itemsData: Product[] = [
     color: "#f1c40f",
     purchaseDate: "2025-02-15",
     price: "$39.99",
-    ownerId: "",
+    ownerId: "29",
+    invoiceStatus: "Pending",
   },
   {
     id: 30,
@@ -291,6 +320,7 @@ export const itemsData: Product[] = [
     color: "#8e44ad",
     purchaseDate: "2025-02-15",
     price: "$28.99",
-    ownerId: "",
+    ownerId: "30",
+    invoiceStatus: "Pending",
   },
 ]; 

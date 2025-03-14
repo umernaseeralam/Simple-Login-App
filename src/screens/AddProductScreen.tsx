@@ -456,73 +456,75 @@ const AddProductScreen: React.FC = () => {
               onChangeText={setTimeScore}
             />
 
-            <SectionHeader title="Condition" />
-            <OptionButtons
-              options={conditionOptions}
-              selectedOption={condition}
-              onSelect={setCondition}
-            />
+<SectionHeader title="Condition" />
+<OptionButtons
+  options={conditionOptions}
+  selectedOption={condition}
+  onSelect={setCondition}
+/>
 
-            <SectionHeader title="Polish" />
-            <OptionButtons
-              options={polishOptions}
-              selectedOption={polish}
-              onSelect={setPolish}
-            />
+<SectionHeader title="Polish" />
+<OptionButtons
+  options={polishOptions}
+  selectedOption={polish}
+  onSelect={setPolish}
+/>
 
-            <SectionHeader title="Chrono" />
-            <OptionButtons
-              options={chronoOptions}
-              selectedOption={chrono}
-              onSelect={setChrono}
-            />
+<SectionHeader title="Chrono" />
+<OptionButtons
+  options={chronoOptions}
+  selectedOption={chrono}
+  onSelect={setChrono}
+/>
 
-            <SectionHeader title="Movement" />
-            <OptionButtons
-              options={movementOptions}
-              selectedOption={movement}
-              onSelect={setMovement}
-            />
+<SectionHeader title="Movement" />
+<OptionButtons
+  options={movementOptions}
+  selectedOption={movement}
+  onSelect={setMovement}
+/>
 
-            <SectionHeader title="Crystal" />
-            <OptionButtons
-              options={crystalOptions}
-              selectedOption={crystal}
-              onSelect={setCrystal}
-            />
+<SectionHeader title="Crystal" />
+<OptionButtons
+  options={crystalOptions}
+  selectedOption={crystal}
+  onSelect={setCrystal}
+/>
 
-            <SectionHeader title="Dial" />
-            <OptionButtons
-              options={dialOptions}
-              selectedOption={dial}
-              onSelect={setDial}
-            />
-            <SectionHeader title="Dial Color" />
-            <OptionButtons
-              options={dialColorOptions}
-              selectedOption={dialColor}
-              onSelect={setDialColor}
-            />
-            <SectionHeader title="Dial Details" />
-            <OptionButtons
-              options={dialDetailsOptions}
-              selectedOption={dialDetails}
-              onSelect={setDialDetails}
-            />
+<SectionHeader title="Dial" />
+<OptionButtons
+  options={dialOptions}
+  selectedOption={dial}
+  onSelect={setDial}
+/>
 
-            <SectionHeader title="Bezel" />
-            <OptionButtons
-              options={bezelOptions}
-              selectedOption={bezel}
-              onSelect={setBezel}
-            />
+<SectionHeader title="Dial Color" />
+<OptionButtons
+  options={dialColorOptions}
+  selectedOption={dialColor}
+  onSelect={setDialColor}
+/>
 
-            <SectionHeader title="Bracelet" />
-            <OptionButtons
-              options={braceletOptions}
-              selectedOption={bracelet}
-              onSelect={setBracelet}
-            />
+<SectionHeader title="Dial Details" />
+<OptionButtons
+  options={dialDetailsOptions}
+  selectedOption={dialDetails}
+  onSelect={setDialDetails}
+/>
+
+<SectionHeader title="Bezel" />
+<OptionButtons
+  options={bezelOptions}
+  selectedOption={bezel}
+  onSelect={setBezel}
+/>
+
+<SectionHeader title="Bracelet" />
+<OptionButtons
+  options={braceletOptions}
+  selectedOption={bracelet}
+  onSelect={setBracelet}
+/>
 
             <SectionHeader title="Additional Notes" />
             <View className="px-4 py-2">

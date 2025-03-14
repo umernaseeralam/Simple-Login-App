@@ -1,34 +1,35 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 
-// OptionButtons Component
 export const OptionButtons: React.FC<{
   options: string[];
   selectedOption: string | null;
   onSelect: (option: string) => void;
 }> = ({ options, selectedOption, onSelect }) => {
   return (
-    <View className="flex-row flex-wrap p-2">
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={`option-${index}-${option}`}
-          className={`px-3 py-1.5 rounded-md border border-gray-200 mr-2 mb-1 ${
-            selectedOption === option ? "bg-emerald-500" : "bg-transparent"
-          }`}
-          onPress={() => onSelect(option)}
-        >
-          <Text
-            className={
-              selectedOption === option
-                ? "text-white text-xs"
-                : "text-emerald-600 text-xs"
-            }
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="p-2">
+      <View className="flex-row flex-wrap">
+        {options.map((option, index) => (
+          <TouchableOpacity
+            key={`option-${index}-${option}`}
+            className={`px-3 py-1.5 rounded-md border border-gray-200 mr-2 ${
+              selectedOption === option ? "bg-emerald-500" : "bg-transparent"
+            }`}
+            onPress={() => onSelect(option)}
           >
-            {option}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+            <Text
+              className={
+                selectedOption === option
+                  ? "text-white text-xs"
+                  : "text-emerald-600 text-xs"
+              }
+            >
+              {option}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 
@@ -56,7 +57,7 @@ export const MultiSelectButtons: React.FC<{
           {required && <Text className="text-red-500"> *</Text>}
         </View>
       )}
-      <View className="flex-row flex-wrap">
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row flex-wrap h-10">
         {options.map((option, index) => (
           <TouchableOpacity
             key={`multi-option-${index}-${option}`}
@@ -78,7 +79,7 @@ export const MultiSelectButtons: React.FC<{
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
       {error && <Text className="text-red-500 text-xs ml-2">{error}</Text>}
     </View>
   );

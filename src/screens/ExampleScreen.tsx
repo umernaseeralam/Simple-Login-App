@@ -12,6 +12,7 @@ import { useTheme } from '../context/ThemeContext';
 import ProductGridCard from '../components/ProductGridCard';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { itemsData } from '../data/ProductsData'; // Ensure this path is correct
+import ProductInvoiceCard from '../components/ProductInvoiceCard';
 
 const ExampleScreen: React.FC = () => {
   const { colors } = useTheme();
@@ -110,16 +111,11 @@ const ExampleScreen: React.FC = () => {
             <View style={styles.gridContainer}>
               {invoices.map(item => (
                 <View key={item.id} style={styles.gridItem}>
-                  <ProductGridCard 
-                    item={item} 
+                  <ProductInvoiceCard 
+                    item={{...item, purchaseDate: item.purchaseDate || '', invoiceStatus: item.invoiceStatus || ''}} 
                     width={cardWidth} 
                     colors={colors}
                   />
-                  <View style={[styles.dateBadge, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={[styles.dateText, { color: colors.secondaryText }]}>
-                      Purchased:  {item.purchaseDate}
-                    </Text>
-                  </View>
                 </View>
               ))}
             </View>
