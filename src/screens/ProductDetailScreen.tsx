@@ -69,15 +69,29 @@ const ProductDetailScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Product Details</Text>
-        {isOwner ? (
-          <TouchableOpacity onPress={() => navigation.navigate('EditProduct', { product })}>
-            <Ionicons name="create-outline" size={24} color={colors.primary} />
+        <View style={styles.headerActions}>
+          {isOwner ? (
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('EditProduct', { product })}
+              style={styles.headerIcon}
+            >
+              <Ionicons name="create-outline" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Chat', { item: product })}
+              style={styles.headerIcon}
+            >
+              <Ionicons name="chatbubble-outline" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Invoice', { product })}
+            style={styles.headerIcon}
+          >
+            <Ionicons name="receipt-outline" size={24} color={colors.primary} />
           </TouchableOpacity>
-        ) : (
-          <TouchableOpacity onPress={() => navigation.navigate('Chat', { item: product })}>
-            <Ionicons name="chatbubble-outline" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        )}
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView}>
@@ -113,6 +127,15 @@ const ProductDetailScreen: React.FC = () => {
           )}
         </View>
 
+        {/* View Invoice Button */}
+        <TouchableOpacity 
+          style={[styles.invoiceButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('Invoice', { product })}
+        >
+          <Ionicons name="receipt-outline" size={20} color={colors.primary} style={styles.invoiceButtonIcon} />
+          <Text style={[styles.invoiceButtonText, { color: colors.text }]}>View Invoice</Text>
+        </TouchableOpacity>
+
         {/* Action Buttons */}
         {!isOwner && (
           <View style={[styles.actionButtonsContainer, { borderBottomColor: '#e5e7eb' }]}>
@@ -134,7 +157,7 @@ const ProductDetailScreen: React.FC = () => {
 
         {/* Combined Watch Info and Condition */}
         {(product.watchInfo || product.condition || product.polish || product.crystal || 
-          product.dial || product.bezel || product.movement || product.bracelet) && (
+          product.dial || product.dialColor || product.dialDetails || product.chrono || product.bezel || product.movement || product.bracelet) && (
           <DetailSection title="Product Details">
             {/* Watch Info */}
             {product.watchInfo && (
@@ -153,6 +176,9 @@ const ProductDetailScreen: React.FC = () => {
             <DetailItem label="Polish" value={product.polish} />
             <DetailItem label="Crystal" value={product.crystal} />
             <DetailItem label="Dial" value={product.dial} />
+            <DetailItem label="Dial Color" value={product.dialColor} />
+            <DetailItem label="Dial Details" value={product.dialDetails} />
+            <DetailItem label="Chrono" value={product.chrono} />
             <DetailItem label="Bezel" value={product.bezel} />
             <DetailItem label="Movement" value={product.movement} />
             <DetailItem label="Bracelet" value={product.bracelet} />
@@ -202,6 +228,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  headerActions: {
+    flexDirection: 'row',
+  },
+  headerIcon: {
+    marginLeft: 16,
+  },
   scrollView: {
     flex: 1,
   },
@@ -243,6 +275,23 @@ const styles = StyleSheet.create({
   productDescription: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  invoiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    marginHorizontal: 16,
+    marginVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  invoiceButtonIcon: {
+    marginRight: 8,
+  },
+  invoiceButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
   actionButtonsContainer: {
     flexDirection: 'row',

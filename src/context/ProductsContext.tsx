@@ -22,11 +22,16 @@ export interface Product {
   polish?: string;
   crystal?: string;
   dial?: string;
+  dialColor?: string;
+  dialDetails?: string;
+  chrono?: string;
   bezel?: string;
   movement?: string;
   bracelet?: string;
   additionalNotes?: string;
   images?: string[];
+  purchaseDate?: string;
+  invoiceStatus?: string;
 }
 
 interface ProductsContextType {

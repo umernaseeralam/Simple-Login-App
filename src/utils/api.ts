@@ -33,7 +33,7 @@ export const fetchBrands = async (
 ): Promise<Brand[]> => {
   try {
     // For development/testing, return mock data if API_CONFIG.BASE_URL is not set
-    if (!API_CONFIG.BASE_URL || API_CONFIG.BASE_URL === '{{ v1_url }}/web/brands?page=1&per_page=200&sort=name&direction=asc&active=true') {
+    if (!API_CONFIG.BASE_URL || API_CONFIG.BASE_URL === '{{ v1_url }}/web/brands?page=1&per_page=200&sort=name&direction=asc') {
       console.warn('Using mock data for brands as API_CONFIG.BASE_URL is not set');
       return mockBrands;
     }

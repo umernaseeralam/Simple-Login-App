@@ -10,6 +10,7 @@ export interface Item {
   description: string;
   color: string;
   price: string;
+  ownerId: string;
 }
 
 interface ProductGridCardProps {
