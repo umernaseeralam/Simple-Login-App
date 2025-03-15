@@ -32,29 +32,62 @@ export const fetchBrands = async (
   active: boolean = true
 ): Promise<Brand[]> => {
   try {
-    // For development/testing, return mock data if API_CONFIG.BASE_URL is not set
-    if (!API_CONFIG.BASE_URL || API_CONFIG.BASE_URL === '{{ v1_url }}/web/brands?page=1&per_page=200&sort=name&direction=asc') {
-      console.warn('Using mock data for brands as API_CONFIG.BASE_URL is not set');
+    // Check if API_CONFIG is properly initialized
+    if (!API_CONFIG || !API_CONFIG.BASE_URL) {
+      console.warn('API_CONFIG or BASE_URL is not properly set, using mock data');
       return mockBrands;
     }
 
-    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.BRANDS}?page=${page}&per_page=${perPage}&sort=${sort}&direction=${direction}&active=${active}`;
+    // Fix the template string check - this indicates the config hasn't been properly initialized
+    if (API_CONFIG.BASE_URL.includes('{{ v1_url }}')) {
+      console.warn('API_CONFIG contains template variables that were not replaced, using mock data');
+      return mockBrands;
+    }
+
+    // Ensure proper URL construction
+    const baseUrl = API_CONFIG.BASE_URL.endsWith('/') ? API_CONFIG.BASE_URL.slice(0, -1) : API_CONFIG.BASE_URL;
+    const endpoint = API_CONFIG.ENDPOINTS.BRANDS.startsWith('/') ? API_CONFIG.ENDPOINTS.BRANDS : `/${API_CONFIG.ENDPOINTS.BRANDS}`;
+    const url = `${baseUrl}${endpoint}?page=${page}&per_page=${perPage}&sort=${sort}&direction=${direction}&active=${active}`;
     
+    console.log('Requesting URL:', url); // For debugging
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        // Add authorization if needed
+        // 'Authorization': `Bearer ${API_CONFIG.API_KEY}`,
       },
+      // Add credentials if needed for cookies
+      // credentials: 'include',
     });
     
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`API error (${response.status}):`, errorText);
       throw new Error(`API error: ${response.status} - ${errorText}`);
     }
     
-    const data = await response.json();
-    return Array.isArray(data) ? data : data.data || [];
+    const result = await response.json();
+    
+    // Handle different API response formats
+    if (Array.isArray(result)) {
+      return result;
+    } else if (result.data && Array.isArray(result.data)) {
+      return result.data;
+    } else if (typeof result === 'object' && result !== null) {
+      // Try to extract data from various common API response formats
+      const possibleDataFields = ['brands', 'items', 'results', 'records'];
+      for (const field of possibleDataFields) {
+        if (result[field] && Array.isArray(result[field])) {
+          return result[field];
+        }
+      }
+    }
+    
+    console.warn('Unexpected API response format:', result);
+    return [];
   } catch (error) {
     console.error('Error fetching brands:', error);
     // Return mock data as fallback in case of error
@@ -103,4 +136,4 @@ const mockBrands: Brand[] = [
 export default {
   fetchBrands,
   searchBrands
-}; 
+};

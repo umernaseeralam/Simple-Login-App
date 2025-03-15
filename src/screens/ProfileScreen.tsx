@@ -14,6 +14,7 @@ type RootStackParamList = {
   Auth: undefined;
   ProfileTab: undefined;
   UserInventory: undefined;
+  Example: undefined;
 };
 
 const ProfileScreen: React.FC = () => {
@@ -69,8 +70,8 @@ const ProfileScreen: React.FC = () => {
     <View className="flex-1">
       <ScrollView className="flex-1">
         <View className="items-center py-8 border-b border-gray-200">
-          <View className="w-30 h-30 rounded-full overflow-hidden mb-4 border-3 border-blue-500 bg-blue-500 justify-center items-center">
-            <Text className="text-purple-700 text-4xl font-bold">
+          <View style={{ width: 100, height: 100 }} className=" rounded-full overflow-hidden mb-4 border-3 border border-gray-300 justify-center items-center">
+            <Text className="text-black text-4xl font-bold">
               {getInitials(user?.name || 'User')}
             </Text>
           </View>
@@ -102,6 +103,13 @@ const ProfileScreen: React.FC = () => {
           >
             <Ionicons name="cube-outline" size={20} color="#ffffff" className="mr-2" />
             <Text className="text-white text-base font-bold">My Inventory</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            className="py-3 rounded-lg items-center mb-4 bg-black flex-row justify-center"
+            onPress={() => navigation.navigate('Example' as never)}
+          >
+            <Ionicons name="document-text-outline" size={20} color="#ffffff" className="mr-2" />
+            <Text className="text-white text-base font-bold">Invoice Page</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 

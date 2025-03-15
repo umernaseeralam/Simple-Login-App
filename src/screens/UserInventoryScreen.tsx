@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -25,6 +26,7 @@ const UserInventoryScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [numColumns, setNumColumns] = useState(2);
   const [itemWidth, setItemWidth] = useState(0);
+  const [localProducts, setLocalProducts] = useState(products);
 
   // Check if user is logged in when screen is focused
   useEffect(() => {
@@ -33,11 +35,18 @@ const UserInventoryScreen: React.FC = () => {
     }
   }, [isLoggedIn, navigation]);
 
+  // Update local products when products from context changes
+  useEffect(() => {
+    setLocalProducts(products);
+  }, [products]);
+
   // Calculate item width based on screen size and number of columns
   useEffect(() => {
-    // This is a simplified calculation, you might want to use Dimensions API
-    // to get the actual screen width
-    setItemWidth(180); // Assuming a fixed width for simplicity
+    const { width } = Dimensions.get('window');
+    const padding = 16 * 2; // Container padding × 2
+    const columnGap = 8 * (numColumns - 1); // Gap between columns
+    const availableWidth = width - padding - columnGap;
+    setItemWidth(availableWidth / numColumns);
   }, [numColumns]);
 
   const handleAddProduct = () => {
@@ -49,7 +58,7 @@ const UserInventoryScreen: React.FC = () => {
   };
 
   const handleEditProduct = (productId: number) => {
-    const productToEdit = products.find(p => p.id === productId);
+    const productToEdit = localProducts.find(p => p.id === productId);
     if (productToEdit) {
       navigation.navigate('EditProduct', { product: productToEdit });
     }
@@ -70,7 +79,13 @@ const UserInventoryScreen: React.FC = () => {
           onPress: async () => {
             setIsLoading(true);
             try {
+              // Delete from backend
               await deleteProduct(productId);
+              
+              // Update local state immediately
+              setLocalProducts(prevProducts => 
+                prevProducts.filter(product => product.id !== productId)
+              );
             } catch (error) {
               console.error('Error deleting product:', error);
               Alert.alert('Error', 'Failed to delete product');
@@ -85,14 +100,18 @@ const UserInventoryScreen: React.FC = () => {
   };
 
   const handleViewProductDetails = (productId: number) => {
-    const product = products.find(p => p.id === productId);
+    const product = localProducts.find(p => p.id === productId);
     if (product) {
       navigation.navigate('ProductDetail', { product });
     }
   };
 
+  // Key extractor function to ensure unique keys
+  const keyExtractor = (item: any) => `product-${item.id}`;
+
+  // Modified render item function to handle grid layout better
   const renderItem = ({ item }: { item: any }) => (
-    <View>
+    <View style={styles.itemContainer}>
       <ProductGridCard
         item={item}
         width={itemWidth}
@@ -140,7 +159,7 @@ const UserInventoryScreen: React.FC = () => {
 
       {isLoading ? (
         <ActivityIndicator size="large" color={colors.primary} />
-      ) : products.length === 0 ? (
+      ) : localProducts.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="cube-outline" size={64} color={colors.secondaryText} />
           <Text style={[styles.emptyText, { color: colors.secondaryText }]}>
@@ -155,11 +174,22 @@ const UserInventoryScreen: React.FC = () => {
         </View>
       ) : (
         <FlatList
-          data={products}
+          data={localProducts}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={keyExtractor}
           numColumns={numColumns}
+          key={`grid-${numColumns}`}
           contentContainerStyle={styles.listContainer}
+          columnWrapperStyle={styles.columnWrapper}
+          getItemLayout={(data, index) => ({
+            length: itemWidth,
+            offset: itemWidth * index,
+            index,
+          })}
+          removeClippedSubviews={true}
+          initialNumToRender={8}
+          maxToRenderPerBatch={10}
+          windowSize={10}
         />
       )}
     </View>
@@ -195,6 +225,13 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: 16,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  itemContainer: {
+    marginBottom: 8,
   },
   emptyContainer: {
     flex: 1,
@@ -232,4 +269,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UserInventoryScreen; 
+export default UserInventoryScreen;

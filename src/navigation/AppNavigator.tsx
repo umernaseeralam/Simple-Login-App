@@ -17,7 +17,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import SearchScreen from '../screens/SearchScreen';
-import ExampleScreen from '../screens/ExampleScreen';
+import ExampleScreen from '../screens/InvoiceExampleScreen';
 import UserInventoryScreen from '../screens/UserInventoryScreen';
 import AddProductScreen from '../screens/AddProductScreen';
 import EditProductScreen from '../screens/EditProductScreen';
